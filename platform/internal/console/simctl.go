@@ -23,6 +23,12 @@ type SimLock struct {
 	Channel   int  `json:"channel"`
 	Slot      int  `json:"slot"`
 	Short     int  `json:"short"`
+	Flags     int  `json:"flags"`      // SLP_LF_*: door open, double lock, locked out
+	LogSeq    int  `json:"log_seq"`    // newest record in the lock's log
+	UpPending int  `json:"up_pending"` // uplinks waiting in the lock (offline / no ACK)
+	ClockOffs int  `json:"clock_offset_s"`
+	AutolockS int  `json:"autolock_s"`
+	Remote    int  `json:"remote_allowed"`
 }
 
 // SimCtl talks to locksim's control port (text over UDP).
@@ -92,8 +98,9 @@ func (s *SimCtl) parse(r string) {
 		var e uint64
 		var x SimLock
 		var rf, joined, clutch int
-		if _, err := fmt.Sscanf(l, "%x %d %d %d %d %d %d %d %d %d %d %d %d", &e, &x.State, &x.BatteryMV, &rf, &joined,
-			&x.Cards, &x.BattLevel, &clutch, &x.Ind, &x.IndAgeMs, &x.Channel, &x.Slot, &x.Short); err != nil {
+		if _, err := fmt.Sscanf(l, "%x %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", &e, &x.State, &x.BatteryMV, &rf, &joined,
+			&x.Cards, &x.BattLevel, &clutch, &x.Ind, &x.IndAgeMs, &x.Channel, &x.Slot, &x.Short,
+			&x.Flags, &x.LogSeq, &x.UpPending, &x.ClockOffs, &x.AutolockS, &x.Remote); err != nil {
 			continue
 		}
 		x.RF, x.Joined, x.Clutch = rf == 1, joined == 1, clutch == 1

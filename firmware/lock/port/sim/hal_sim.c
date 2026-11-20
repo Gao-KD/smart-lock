@@ -3,6 +3,8 @@
 
 #include <time.h>
 
+#include "slp/secure.h"
+
 hal_sim_lock_t *hal_sim_cur;
 
 static struct timespec t0;
@@ -63,4 +65,9 @@ int hal_nvm_read(uint16_t key, void *data, size_t len)
 {
     (void)key; (void)data; (void)len;
     return -1;
+}
+
+int hal_app_mac(const uint8_t *msg, size_t len, uint8_t out[8])
+{
+    return slp_app_mac(hal_sim_cur->app_key, hal_sim_cur->eui, msg, len, out);
 }

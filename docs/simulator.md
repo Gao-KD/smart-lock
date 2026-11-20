@@ -42,7 +42,9 @@
 
 **哪些是真代码，哪些是模拟的：**
 
-- 真代码：门锁固件逻辑（和将来烧进 EFR32 的是同一份 C 代码，只换了硬件抽象层）、空口帧格式、AES-128-CCM* 加解密（RFC 3610 测试向量校验过，C 和 Go 两边互通）、防重放、指令去重、网关调度器、平台下发服务。
+- 真代码：门锁固件逻辑（和将来烧进 EFR32 的是同一份 C 代码，只换了硬件抽象层）、空口帧格式、AES-128-CCM* 加解密（RFC 3610 测试向量校验过，C 和 Go 两边互通）、防重放、指令去重、网关调度器、平台下发服务、离线密码和蓝牙令牌算法、上行 ACK 重发、记录补传、信标校时。
+- 门口的输入（刷卡、键盘、门磁、反锁旋钮、防撬开关、呼叫键、机械钥匙、手机蓝牙）用控制命令模拟，进入固件的是同一个函数（`lock_app_access` / `lock_app_keypad` / `lock_app_door` …）。蓝牙只模拟“出示令牌”，不模拟 BLE 连接和挑战应答。
+- 空口丢包率同时作用于下行、上行、信标和 ACK。
 - 模拟的：电机、读卡器、电池（`firmware/lock/port/sim/hal_sim.c`）；射频（帧在锁的时隙被“听到”，可设丢包率，不模拟碰撞和距离）；密钥（用固定的模拟主密钥派生，**仅限模拟**，真实设备由出厂 K_dev + 平台 KMS 派生）；入网（没做 K_dev 签名校验）；平台数据库（内存）。
 
 ## 快速开始
@@ -101,12 +103,24 @@ Docker 方式改 `deploy/sim/docker-compose.yml` 里的 `FLOORS` / `ROOMS` / `FL
 | `status` | 状态上报与查询 | 心跳（默认 30 秒）判断在线；主动查询返回状态、电量、卡数；全楼巡检约 2 秒 | “状态查询” / “全楼状态巡检” |
 | `low-battery` | 低电量告警 | 电压降到 4300 mV → 平台收到低电告警、房间标橙点；刷卡照常开门但给出低电提示；3900 mV 严重低电；换电池后恢复 | 拖动“电池”滑块 → “设置电压” |
 | `fault` | 电机故障 | 电机卡死时远程开门返回 HW_FAULT，门锁进入故障状态（紫色）；排除后恢复 | “电机卡死” → “远程开门” |
+| `password` | 密码开门 | 固定密码；前后加任意数字的虚位密码；访客一次性密码用一次就失效；保洁周期密码只在指定星期和时段有效 | “添加密码” / “一次性访客密码” → 在“键盘输入”里输入 → “输入密码 #” |
+| `offline-password` | 离线密码 | 锁完全离线时，平台算出 10 位离线密码：一次性的只能用一次；限时 8 小时的可反复用；输入清除码后全部作废；恢复在线后记录补传 | “射频遮挡” → “离线密码 一次性/限时/清除码”（密码自动填进键盘输入框）→ “输入密码 #” |
+| `member` | 成员管理 | 同一用户的卡和密码一起冻结（欠费）返回 FROZEN、解冻；退宿一条指令删光该用户全部凭证 | “成员”框填用户号 → “冻结 / 解冻 / 退宿” |
+| `alarms` | 告警 | 连续 5 张陌生卡 → 试错告警，3 分钟内合法卡也刷不开但远程开门有效；胁迫密码照常开门并静默告警；撬面板、机械钥匙、门未关好（演示里设为 3 秒）都上报 | “刷一张陌生卡”×5、“胁迫密码”、“撬面板”、“机械钥匙开门”、“推开门”，看事件日志“告警” |
+| `double-lock` | 室内反锁与门磁 | 反锁后门外刷卡、远程开门都返回 DOUBLE_LOCKED；刷卡进门后关门立即落锁 | “室内反锁” → “刷卡”/“远程开门”；“推开门” → “关上门”（格子左上角黑点 = 反锁，虚线框 = 门开着）|
+| `unlock-request` | 访客呼叫与确认开门 | 关闭“允许远程开门”后平台直接开门被拒（NEED_REQUEST）；访客按呼叫键，批准这一次请求后开门 | “禁止直接远程开门” → “访客按呼叫键”（格子闪蓝点）→ “批准访客开门请求” |
+| `config` | 整栋楼统一配置 | 批量给 360 把锁下发自动落锁时间等参数，约 3 秒全部生效 | “全楼统一自动落锁时间” |
+| `ble-fallback` | 手机蓝牙本地开门 | 锁封锁后断网：学生蓝牙钥匙被拒，宿管蓝牙钥匙能开，篡改的钥匙被拒；恢复后记录补传 | “射频遮挡” → “学生/宿管手机蓝牙开门” |
+| `offline-records` | 断网记录不丢 / 上行重发 | 离线刷卡 25 次（超出锁内 16 条队列），恢复后平台发现序号缺口自动补传，25 条全部到达；空口丢包 30% 时上行靠 ACK 重发不丢 | “射频遮挡” → 多次“刷卡” → “恢复在线”，看右侧“开门记录”一行 |
+| `time-sync` | 信标校时 | 门锁时钟慢 5 分钟，下一个信标就校正 | “时钟慢 5 分钟” |
 
 ## Web 控制台怎么看
 
 - **楼栋视图**：每个格子是一把锁，颜色是锁的真实状态（灰蓝上锁、绿开门、橙应急、红封锁、紫故障、斜纹射频离线），右上橙点是低电量，左下白点表示锁里存了卡。点击格子选中。
 - **右侧主板**：选中门锁的虚拟主板——EFR32FG28、433MHz 天线（显示信道和时隙）、NFC 读卡、电机驱动/离合（啮合或分离）、指示灯、蜂鸣器、4 节 AA 电池电压。刷卡、开门时指示灯和蜂鸣器会动。
-- **操作区**分四组：门口操作（模拟真实世界的刷卡）、平台下发（真正走 MQTT → 网关 → 433MHz）、故障与环境（电池、射频遮挡、ACK 丢失、电机卡死）、攻击者（重放、篡改）。顶部还可以调整整个空口的丢包率。
+- **楼栋格子的标记**：左上黑点 = 室内反锁，橙色虚线框 = 门开着，右下闪烁蓝点 = 访客正在请求开门。
+- **操作区**分五组：门口操作（刷卡、键盘输入、手机蓝牙、推门/关门、反锁、呼叫键、机械钥匙、撬面板）、平台下发（真正走 MQTT → 网关 → 433MHz）、密码与成员（密码、一次性/胁迫密码、离线密码、冻结/解冻/退宿、参数）、故障与环境（电池、射频遮挡、ACK 丢失、电机卡死、时钟漂移）、攻击者（重放、篡改）。顶部还可以调整整个空口的丢包率。
+- **右侧信息**新增：门/反锁/试错冻结、开门记录（锁内序号、平台收到多少、缺多少、补传次数）、连接（待上行条数、重连次数、时钟偏差）、参数、告警、访客请求。
 - **指令追踪**：每条指令的 排队 → 网关已收 → 已送达（空口 ACK）→ 已执行（门锁端到端结果）、发送次数、耗时和说明。
 - **事件日志**：开门记录、告警、安全事件、平台指令、门锁固件日志，可按类别筛选。
 
@@ -145,6 +159,28 @@ curl -X POST localhost:8080/api/sim/locks/1203/battery -d '{"mv":4300}'
 curl -X POST localhost:8080/api/sim/locks/1203/rf      -d '{"on":false}'
 curl -X POST localhost:8080/api/sim/locks/1203/replay
 curl -X POST localhost:8080/api/sim/loss -d '{"pct":10}'
+
+# 密码、成员、参数、离线密码、蓝牙钥匙、访客请求、记录补传
+curl -X POST localhost:8080/api/locks/211/passwords -d '{"pin":"246810","user_id":3001}'
+curl -X POST localhost:8080/api/locks/211/passwords -d '{"pin":"135790","user_id":9001,"uses":1,"valid_hours":24}'
+curl -X POST localhost:8080/api/locks/211/passwords -d '{"pin":"808080","user_id":5001,"days":[1,2,3,4,5],"start":"08:00","end":"10:00"}'
+curl -X POST localhost:8080/api/locks/211/cards     -d '{"uid":"A0B0C0D0","user_id":3002,"duress":false,"admin":false}'
+curl -X POST localhost:8080/api/locks/416/users/3002/freeze -d '{"freeze":true}'
+curl -X DELETE localhost:8080/api/locks/416/users/3002                        # 退宿：删除该用户全部凭证
+curl -X POST localhost:8080/api/locks/725/config -d '{"autolock_s":8,"remote_allowed":false}'
+curl -X POST localhost:8080/api/buildings/1/config -d '{"autolock_s":5}'      # 也可以 clear-creds
+curl -X POST localhost:8080/api/locks/322/offline-password -d '{"kind":"timed","hours":8}'   # once / timed / clear
+curl -X POST localhost:8080/api/locks/826/ble-key -d '{"user_id":1,"hours":2,"admin":true}'
+curl -X POST localhost:8080/api/locks/725/requests/approve
+curl -X POST localhost:8080/api/locks/927/read-log -d '{"from":1,"count":16}'
+# 门口的“真实世界”
+curl -X POST localhost:8080/api/sim/locks/211/keypad   -d '{"digits":"7724681093"}'
+curl -X POST localhost:8080/api/sim/locks/826/ble      -d '{"token":"<ble-key 返回的 token>"}'
+curl -X POST localhost:8080/api/sim/locks/624/door     -d '{"open":true}'
+curl -X POST localhost:8080/api/sim/locks/624/dlock    -d '{"on":true}'
+curl -X POST localhost:8080/api/sim/locks/725/doorbell
+curl -X POST localhost:8080/api/sim/locks/528/pry                             # 也可以 key（机械钥匙）
+curl -X POST localhost:8080/api/sim/locks/1029/clock   -d '{"delta_s":-300}'
 ```
 
 房间可以写房间号（`1203`）或 16 位 EUI。

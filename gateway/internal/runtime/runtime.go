@@ -391,6 +391,9 @@ func (r *Runtime) onUplink(up rcp.RxFrame) {
 	}
 	st.rxValid, st.rxLast, st.lastSeen = true, g.FrameCounter, time.Now()
 	r.mu.Unlock()
+	if g.AckRequest {
+		r.sendAck(uint16(f.Src), g.Seq)
+	}
 
 	if len(g.Payload) < slp.UpSeqLen+slp.AppHdrLen {
 		return
@@ -401,6 +404,25 @@ func (r *Runtime) onUplink(up rcp.RxFrame) {
 	} else {
 		r.pub.Publish(topics.UpEvent, msg, false)
 	}
+}
+
+// sendAck answers an uplink right away: the lock keeps its receiver on for
+// a few milliseconds after transmitting and retries with back-off (300 ms,
+// 600 ms, ...) when the ACK does not come. ACKs are not encrypted (like
+// IEEE 802.15.4): a forged ACK can only make the lock drop a message, and
+// lost records are recovered by the platform through READ_LOG.
+func (r *Runtime) sendAck(dst uint16, seq uint8) {
+	f := &slp.Frame{Type: slp.FTAck, PAN: r.cfg.PAN, Seq: seq, DstMode: slp.AddrShort, Dst: uint64(dst),
+		SrcMode: slp.AddrShort, Src: slp.ShortGateway}
+	b, err := f.Encode()
+	if err != nil {
+		return
+	}
+	r.mu.Lock()
+	r.ref++
+	ref := r.ref
+	r.mu.Unlock()
+	_ = r.radio.Send(simnet.EncodeTxNow(ref, b))
 }
 
 func (r *Runtime) onJoin(eui uint64) {

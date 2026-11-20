@@ -6,7 +6,6 @@ package console
 
 import (
 	"context"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
 	"sort"
@@ -38,8 +37,38 @@ type LockView struct {
 	LastAccess string    `json:"last_access,omitempty"`
 	Sim        *SimLock  `json:"sim,omitempty"`
 
-	upseq      uint32
+	// Door sensor, inside double lock and reader lockout (TLV FLAGS / EVT_DOOR).
+	DoorOpen   bool `json:"door_open"`
+	DoubleLock bool `json:"double_lock"`
+	LockedOut  bool `json:"locked_out"`
+	// Record log: highest LOG_SEQ the lock reported, records received, and
+	// records known to exist but not received yet (pulled with READ_LOG).
+	LogSeq     uint32         `json:"log_seq"`
+	Records    int            `json:"records"`
+	Missing    int            `json:"missing"`
+	ReadLogs   int            `json:"read_logs"`
+	Alarms     int            `json:"alarms"`
+	LastAlarm  string         `json:"last_alarm,omitempty"`
+	Request    *UnlockRequest `json:"request,omitempty"`
+	AutolockS  int            `json:"autolock_s,omitempty"`
+	Remote     *bool          `json:"remote_allowed,omitempty"`
+	Reconnects int            `json:"reconnects"`
+
+	upseq      uint32 // highest UPSEQ accepted
 	upseqValid bool
+	upseqWin   uint64 // bit i: UPSEQ upseq-i already accepted
+	logSeen    map[uint32]bool
+	missing    map[uint32]time.Time
+	readLogAt  time.Time
+	dedup      map[uint64]bool
+	dedupOrder []uint64
+	ofpIndex   map[uint32]uint8 // hour -> next offline password index
+}
+
+// UnlockRequest is a visitor's pending request (call button at the door).
+type UnlockRequest struct {
+	ID    uint16    `json:"id"`
+	Until time.Time `json:"until"`
 }
 
 // Event is one line of the console's event log.
@@ -222,15 +251,29 @@ func (c *Console) onLockUplink(eui uint64, u upMsg) {
 		c.mu.Unlock()
 		return
 	}
-	if l.upseqValid && seq <= l.upseq {
-		c.addEventLocked(eui, "security", fmt.Sprintf("上行防重放: 序号 %d <= %d，丢弃", seq, l.upseq))
+	if !l.acceptUpseq(seq) {
+		c.addEventLocked(eui, "security", fmt.Sprintf("上行防重放: 序号 %d 已用过或太旧 (最新 %d)，丢弃", seq, l.upseq))
 		c.mu.Unlock()
 		return
 	}
-	l.upseq, l.upseqValid = seq, true
 	l.LastSeen = time.Now()
 	l.Joined = true
 	l.RSSI = u.RSSI
+	if !l.firstSight(uint64(m.Cmd)<<32 | uint64(m.MsgID)) {
+		// The lock retransmitted because our ACK got lost: already handled.
+		c.mu.Unlock()
+		return
+	}
+	if v, ok := m.U8(slp.TLVFlags); ok {
+		l.DoorOpen, l.DoubleLock, l.LockedOut = v&slp.LFDoorOpen != 0, v&slp.LFDoubleLock != 0, v&slp.LFLockedOut != 0
+	}
+	if v, ok := m.U16(slp.TLVCfgAutolockS); ok {
+		l.AutolockS = int(v)
+	}
+	if v, ok := m.U8(slp.TLVCfgRemote); ok {
+		b := v != 0
+		l.Remote = &b
+	}
 	if st, ok := m.U8(slp.TLVLockState); ok && int(st) < len(slp.LockStateNames) {
 		l.State = slp.LockStateNames[st]
 	}
@@ -247,6 +290,9 @@ func (c *Console) onLockUplink(eui uint64, u upMsg) {
 	switch m.Cmd {
 	case slp.RspResult:
 		res, _ := m.U8(slp.TLVResult)
+		if v, ok := m.U32(slp.TLVLogSeq); ok {
+			c.noteHead(l, v)
+		}
 		name := slp.ResultNames[res]
 		c.mu.Unlock()
 		c.Svc.OnResult(eui, m.MsgID, name)
@@ -256,19 +302,15 @@ func (c *Console) onLockUplink(eui uint64, u upMsg) {
 		}
 		c.Svc.LockSeen(context.Background(), eui)
 		return
-	case slp.EvtAccess:
-		res, _ := m.U8(slp.TLVResult)
-		id, _ := m.Find(slp.TLVCredID)
-		user, _ := m.U32(slp.TLVUserID)
-		txt := fmt.Sprintf("刷卡 %s: ", strings.ToUpper(hex.EncodeToString(id)))
-		if res == slp.ResultOK {
-			txt += fmt.Sprintf("开门 (用户 %d)", user)
-		} else {
-			txt += "拒绝 (" + slp.ResultNames[res] + ")"
+	case slp.EvtAccess, slp.EvtAlarm, slp.EvtDoor, slp.EvtUnlockReq:
+		if !c.noteRecord(l, m) {
+			break // already have this record (READ_LOG re-sent it)
 		}
-		l.LastAccess = txt
-		c.addEventLocked(eui, "access", txt)
+		c.onRecord(eui, l, m)
 	case slp.EvtBattery:
+		if !c.noteRecord(l, m) {
+			break
+		}
 		lv, _ := m.U8(slp.TLVBattLevel)
 		mv, _ := m.U16(slp.TLVBatteryMV)
 		names := []string{"恢复正常", "低电量，请尽快更换电池", "严重低电，请立即更换电池"}
@@ -280,7 +322,13 @@ func (c *Console) onLockUplink(eui uint64, u upMsg) {
 			c.addEventLocked(eui, kind, fmt.Sprintf("电池告警: %d mV，%s", mv, names[lv]))
 		}
 	case slp.EvtHeartbeat:
-		// state already applied above
+		if v, ok := m.U32(slp.TLVLogSeq); ok {
+			c.noteHead(l, v)
+		}
+		if r, _ := m.U8(slp.TLVHBReason); r == slp.HBReconnect {
+			l.Reconnects++
+			c.addEventLocked(eui, "system", "门锁重新连上网关（重连心跳），平台补发挂起的指令并检查记录是否缺失")
+		}
 	}
 	c.mu.Unlock()
 	c.Svc.LockSeen(context.Background(), eui)
@@ -384,4 +432,29 @@ func durationTLV(s uint16) []byte {
 		return nil
 	}
 	return []byte{slp.TLVDurationS, 2, byte(s), byte(s >> 8)}
+}
+
+// acceptUpseq is the uplink anti-replay check with a 64-message sliding
+// window (as in IPsec): results and events travel on different MQTT topics
+// and may be handled out of order, so a strictly increasing check would
+// drop genuine messages. Each UPSEQ is still accepted at most once.
+func (l *LockView) acceptUpseq(seq uint32) bool {
+	if !l.upseqValid || seq > l.upseq {
+		if l.upseqValid {
+			if d := seq - l.upseq; d < 64 {
+				l.upseqWin <<= d
+			} else {
+				l.upseqWin = 0
+			}
+		}
+		l.upseqWin |= 1
+		l.upseq, l.upseqValid = seq, true
+		return true
+	}
+	d := l.upseq - seq
+	if d >= 64 || l.upseqWin&(1<<d) != 0 {
+		return false
+	}
+	l.upseqWin |= 1 << d
+	return true
 }

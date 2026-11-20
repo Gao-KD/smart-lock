@@ -17,6 +17,11 @@ typedef struct {
 
 extern hal_host_state_t hal_host;
 
+/* hal_app_mac uses crypto_host key handle HAL_HOST_APP_KEY (tests set it
+ * with slp_host_key_set) and this EUI. */
+#define HAL_HOST_APP_KEY 900u
+#define HAL_HOST_EUI     0x5A00000000010101ull
+
 void hal_host_reset(void);
 void hal_host_advance(uint32_t ms);
 

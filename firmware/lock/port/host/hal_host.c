@@ -2,6 +2,8 @@
 
 #include <string.h>
 
+#include "slp/secure.h"
+
 hal_host_state_t hal_host;
 
 #define NVM_SLOTS 16
@@ -77,4 +79,9 @@ int hal_nvm_read(uint16_t key, void *data, size_t len)
         }
     }
     return -1;
+}
+
+int hal_app_mac(const uint8_t *msg, size_t len, uint8_t out[8])
+{
+    return slp_app_mac(HAL_HOST_APP_KEY, HAL_HOST_EUI, msg, len, out);
 }

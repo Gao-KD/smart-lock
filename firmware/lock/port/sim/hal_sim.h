@@ -17,6 +17,8 @@ typedef struct {
     uint32_t         last_ind_ms;
     int              ind_calls;
     uint16_t         battery_mv;
+    uint64_t         eui;
+    uint32_t         app_key;         /* crypto_host handle of K_app */
 } hal_sim_lock_t;
 
 extern hal_sim_lock_t *hal_sim_cur;
