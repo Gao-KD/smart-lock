@@ -1,0 +1,34 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  c:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - name: Build and test protocol library and lock firmware (host)
+        run: |
+          cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
+          cmake --build build -j
+          ctest --test-dir build --output-on-failure
+
+  go:
+    runs-on: ubuntu-24.04
+    strategy:
+      matrix:
+        module: [gateway, platform]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      - name: Vet and test
+        working-directory: ${{ matrix.module }}
+        run: |
+          test -z "$(gofmt -l .)"
+          go vet ./...
+          go test ./...
