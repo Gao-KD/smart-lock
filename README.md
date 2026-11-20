@@ -20,6 +20,11 @@
 | `platform` | 私有化平台：指令下发服务（HTTP 开放接口、按网关分批、三段确认）、docker-compose 部署 | Go |
 | `proto/gateway/v1` | 网关与平台之间的消息定义 | Protobuf |
 
+## 硬件
+
+- [测试购买清单](docs/hardware/purchase-list.md)
+- [嘉立创 EDA 原理图与 PCB 指南](docs/hardware/pcb-guide.md)
+
 ## 构建与测试
 
 ```sh
