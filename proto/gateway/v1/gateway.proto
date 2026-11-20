@@ -1,0 +1,98 @@
+// Gateway <-> platform messages, carried over MQTT 5 (TLS, client certs).
+// Topics: see gateway/internal/topics. All messages are QoS 1.
+//
+// NOTE: the Go skeleton currently uses equivalent JSON structs
+// (platform/internal/dispatch); switch to generated code once protoc/buf is
+// added to the build.
+syntax = "proto3";
+
+package smartlock.gateway.v1;
+
+option go_package = "github.com/Gao-KD/smart-lock/proto/gateway/v1;gatewayv1";
+
+enum Priority {
+  PRIORITY_EMERGENCY = 0;   // P0: fire-alarm open, building lockdown
+  PRIORITY_INTERACTIVE = 1; // P1: remote unlock, status
+  PRIORITY_MANAGEMENT = 2;  // P2: credentials, time windows, config
+  PRIORITY_BACKGROUND = 3;  // P3: OTA, log pull
+}
+
+// sl/v1/{tenant}/{gateway}/down/cmd
+message CommandBatch {
+  uint64 batch_id = 1;
+  int64 issued_at_unix_ms = 2;
+  repeated Item items = 3;
+
+  message Item {
+    uint32 msg_id = 1;          // platform-wide unique, idempotency key
+    oneof target {
+      fixed64 lock_eui = 2;     // unicast
+      uint32 group = 3;         // 0xF000..0xFFFE group, 0xFFFF broadcast
+    }
+    Priority priority = 4;
+    int64 expires_at_unix = 5;  // gateway drops after this, lock refuses too
+    bytes app_payload = 6;      // sealed with K_app / K_grp, opaque to the gateway
+  }
+}
+
+// sl/v1/{tenant}/{gateway}/up/ack
+message CommandAck {
+  uint32 msg_id = 1;
+  State state = 2;
+  string reason = 3;
+  int64 at_unix_ms = 4;
+
+  enum State {
+    STATE_ACCEPTED = 0;   // stored in the gateway's persistent queue
+    STATE_DELIVERED = 1;  // link-layer ACK from the lock (unicast)
+    STATE_FAILED = 2;     // no ACK after retries / lock offline
+    STATE_EXPIRED = 3;
+  }
+}
+
+// sl/v1/{tenant}/{gateway}/up/result
+message LockResult {
+  fixed64 lock_eui = 1;
+  bytes app_payload = 2;  // sealed SLP_RSP_RESULT, decrypted by the platform
+  int32 rssi = 3;
+  int64 at_unix_ms = 4;
+}
+
+// sl/v1/{tenant}/{gateway}/up/event
+message LockEvent {
+  fixed64 lock_eui = 1;
+  bytes app_payload = 2;  // sealed SLP_EVT_* (access, alarm, battery)
+  int32 rssi = 3;
+  int64 at_unix_ms = 4;
+}
+
+// sl/v1/{tenant}/{gateway}/up/join
+message JoinRequest {
+  fixed64 lock_eui = 1;
+  bytes join_frame = 2;   // verified by the platform with K_dev from the KMS
+}
+
+// sl/v1/{tenant}/{gateway}/down/gw
+message GatewayConfig {
+  repeated uint32 data_channels = 1;  // 433 MHz channel indexes
+  uint32 control_channel = 2;
+  uint32 pan_id = 3;
+  uint32 period_ms = 4;
+  uint32 slot_ms = 5;
+  repeated LinkKey link_keys = 6;     // K_link per lock, after a join
+
+  message LinkKey {
+    fixed64 lock_eui = 1;
+    bytes wrapped_key = 2;            // wrapped for the gateway's secure element
+  }
+}
+
+// sl/v1/{tenant}/{gateway}/up/status (retained, also the MQTT will message)
+message GatewayStatus {
+  bool online = 1;
+  string firmware = 2;
+  uint32 locks_joined = 3;
+  uint32 locks_online = 4;
+  uint32 queue_depth = 5;
+  string backhaul = 6;                // "ethernet" | "4g"
+}
