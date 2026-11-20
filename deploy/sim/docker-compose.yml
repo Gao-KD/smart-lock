@@ -1,0 +1,17 @@
+# 一条命令启动模拟平台（无需本机安装 Go / CMake）：
+#   docker compose -f deploy/sim/docker-compose.yml up --build
+# 浏览器打开 http://localhost:8080
+# 功能演示：docker compose -f deploy/sim/docker-compose.yml exec sim demo all
+services:
+  sim:
+    build:
+      context: ../..
+      dockerfile: deploy/sim/Dockerfile
+    ports:
+      - "8080:8080"   # Web 控制台 / API
+      - "1883:1883"   # 内置 MQTT（可用 MQTTX 等工具订阅 sl/v1/# 观察消息）
+    environment:
+      FLOORS: "12"
+      ROOMS: "30"
+      FLOORS_PER_GW: "6"
+      HEARTBEAT_S: "30"

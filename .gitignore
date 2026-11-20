@@ -5,3 +5,4 @@ build/
 /platform/dispatch
 .vscode/
 .idea/
+.sim/

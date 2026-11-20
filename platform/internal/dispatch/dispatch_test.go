@@ -137,3 +137,70 @@ func TestStatusOnlyMovesForward(t *testing.T) {
 		t.Fatalf("final status overwritten: %s", st)
 	}
 }
+
+func TestAckResultAndParkedResend(t *testing.T) {
+	pub := &capture{}
+	s := New(Config{}, building(10), fakeSealer{}, pub)
+	ids, err := s.Submit(context.Background(), []Request{
+		{LockEUI: 1, Cmd: CmdCredAdd, Priority: P2Management},
+		{LockEUI: 1, Cmd: CmdUnlock, Priority: P1Interactive},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	card, unlock := ids[0], ids[1]
+	for _, id := range ids {
+		s.OnAck(GatewayAck{MsgID: id, State: "accepted"})
+		s.OnAck(GatewayAck{MsgID: id, State: "failed", Attempts: 5, Reason: "no ACK"})
+	}
+	if st, _ := s.Status(card); st != StatusFailed {
+		t.Fatalf("card status %s", st)
+	}
+	before := len(pub.batches)
+	// The lock is heard again: only the management command is re-sent, with
+	// its original message id (the lock de-duplicates by id).
+	if n := s.LockSeen(context.Background(), 1); n != 1 {
+		t.Fatalf("resent %d", n)
+	}
+	if len(pub.batches) != before+1 || pub.batches[before].Items[0].MsgID != card {
+		t.Fatalf("resend batch = %+v", pub.batches[before:])
+	}
+	if st, _ := s.Status(unlock); st != StatusFailed {
+		t.Fatalf("unlock must not be re-sent, status %s", st)
+	}
+	s.OnResult(1, card, "OK")
+	s.OnResult(1, card, "DUPLICATE") // retransmission after a lost ACK
+	r, _ := s.Record(card)
+	if r.Status != StatusExecuted || r.Result != "OK" || r.Resends != 1 {
+		t.Fatalf("record = %+v", r)
+	}
+	if s.LockSeen(context.Background(), 1) != 0 {
+		t.Fatal("nothing should be parked any more")
+	}
+}
+
+func TestBroadcastJobProgress(t *testing.T) {
+	s := New(Config{}, building(10), fakeSealer{}, &capture{})
+	ids, err := s.Broadcast(context.Background(), "school-a", "b1", CmdEmergency, P0Emergency)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, id := range ids {
+		s.SetExpected(id, 2)
+	}
+	j := s.NewJob("emergency", ids)
+	for _, id := range ids {
+		s.OnAck(GatewayAck{MsgID: id, State: "delivered", Reason: "broadcast", Cells: 150})
+		s.OnResult(100, id, "OK")
+	}
+	p, _ := s.Job(j.ID)
+	if p.Done || p.LocksTotal != 6 || p.LocksDone != 3 {
+		t.Fatalf("progress = %+v", p)
+	}
+	for _, id := range ids {
+		s.OnResult(101, id, "OK")
+	}
+	if p, _ = s.Job(j.ID); !p.Done || p.LocksDone != 6 {
+		t.Fatalf("progress = %+v", p)
+	}
+}

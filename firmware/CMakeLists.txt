@@ -20,12 +20,33 @@ target_include_directories(lock_hal_host PUBLIC lock/hal lock/port/host)
 target_compile_options(lock_hal_host PRIVATE -Wall -Wextra -Werror)
 
 add_executable(lock_host_demo lock/app/main_host.c)
-target_link_libraries(lock_host_demo PRIVATE lock_logic lock_hal_host)
+target_link_libraries(lock_host_demo PRIVATE lock_logic lock_hal_host slp_crypto_host)
 
 if(SMARTLOCK_BUILD_TESTS)
     add_executable(lock_tests lock/tests/test_lock.c)
     target_include_directories(lock_tests PRIVATE ${CMAKE_SOURCE_DIR}/common/slp/tests)
-    target_link_libraries(lock_tests PRIVATE lock_logic lock_hal_host)
+    target_link_libraries(lock_tests PRIVATE lock_logic lock_hal_host slp_crypto_host)
     target_compile_options(lock_tests PRIVATE -Wall -Wextra -Werror)
     add_test(NAME lock_tests COMMAND lock_tests)
+endif()
+
+# PC simulator: hundreds of virtual locks running this firmware logic, the
+# simulated 433 MHz air and radio co-processors (see port/sim/locksim.c).
+if(UNIX)
+    add_executable(locksim
+        lock/port/sim/locksim.c
+        lock/port/sim/hal_sim.c
+        lock/port/sim/sim_net.c
+    )
+    target_include_directories(locksim PRIVATE lock/port/sim)
+    target_link_libraries(locksim PRIVATE lock_logic slp_crypto_host)
+    target_compile_options(locksim PRIVATE -Wall -Wextra -Werror)
+endif()
+
+if(SMARTLOCK_BUILD_TESTS)
+    add_executable(sim_net_tests lock/tests/test_sim_net.c lock/port/sim/sim_net.c)
+    target_include_directories(sim_net_tests PRIVATE ${CMAKE_SOURCE_DIR}/common/slp/tests lock/port/sim)
+    target_link_libraries(sim_net_tests PRIVATE slp slp_crypto_host)
+    target_compile_options(sim_net_tests PRIVATE -Wall -Wextra -Werror)
+    add_test(NAME sim_net_tests COMMAND sim_net_tests)
 endif()
