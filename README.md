@@ -37,6 +37,11 @@ scripts/demo.sh all                                          # Docker: docker co
 | `deploy/sim`、`scripts` | 模拟平台一键启动（Docker / 本机脚本）与功能演示 | |
 | `proto/gateway/v1` | 网关与平台之间的消息定义 | Protobuf |
 
+## 硬件
+
+- [测试购买清单](docs/hardware/purchase-list.md)
+- [嘉立创 EDA 原理图与 PCB 指南](docs/hardware/pcb-guide.md)
+
 ## 构建与测试
 
 ```sh
