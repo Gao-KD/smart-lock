@@ -162,3 +162,37 @@ func TestUnknownLockRejected(t *testing.T) {
 		t.Fatalf("err = %v", err)
 	}
 }
+
+func TestTakeUrgentOnlyInteractiveAndFreeCells(t *testing.T) {
+	tb := newTable(t, 3, 6)
+	s := New(tb, Config{})
+	now := time.Unix(1_800_000_000, 0)
+	for i := 0; i < 6; i++ {
+		p := P1Interactive
+		if i%2 == 1 {
+			p = P2Management
+		}
+		_ = s.Enqueue(&Command{MsgID: uint32(i + 1), LockEUI: uint64(0x1000 + i), Priority: p})
+	}
+	used := map[locktable.Cell]bool{}
+	first, _ := tb.Get(0x1000)
+	used[first.Cell] = true // already taken this period
+	txs := s.TakeUrgent(now, func(c locktable.Cell) bool {
+		if used[c] {
+			return false
+		}
+		used[c] = true
+		return true
+	})
+	if len(txs) != 2 { // locks 2 and 4 (P1); lock 0's cell is used; odd ones are P2
+		t.Fatalf("took %d", len(txs))
+	}
+	for _, tx := range txs {
+		if tx.Cmd.Priority != P1Interactive {
+			t.Fatal("took a management command")
+		}
+	}
+	if s.Pending() != 4 {
+		t.Fatalf("pending = %d", s.Pending())
+	}
+}

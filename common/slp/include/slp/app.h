@@ -36,7 +36,8 @@ typedef enum {
     SLP_RSP_RESULT       = 0x80, /* TLV RESULT + echo of MSG_ID */
     SLP_EVT_ACCESS       = 0x90, /* door opened with credential */
     SLP_EVT_ALARM        = 0x91,
-    SLP_EVT_BATTERY      = 0x92
+    SLP_EVT_BATTERY      = 0x92, /* battery level changed (low / critical / ok) */
+    SLP_EVT_HEARTBEAT    = 0x93  /* periodic status: state, battery, credentials */
 } slp_cmd_t;
 
 /* TLV types. */
@@ -49,7 +50,10 @@ typedef enum {
     SLP_TLV_VALID_TO    = 0x06, /* u32 unix s */
     SLP_TLV_UNIX_TIME   = 0x07, /* u32 unix s */
     SLP_TLV_BATTERY_MV  = 0x08, /* u16 */
-    SLP_TLV_USER_ID     = 0x09  /* u32, platform user id */
+    SLP_TLV_USER_ID     = 0x09, /* u32, platform user id */
+    SLP_TLV_LOCK_STATE  = 0x0A, /* u8, lock_state_t */
+    SLP_TLV_CRED_COUNT  = 0x0B, /* u16 */
+    SLP_TLV_BATT_LEVEL  = 0x0C  /* u8, slp_batt_level_t */
 } slp_tlv_type_t;
 
 typedef enum {
@@ -70,6 +74,12 @@ typedef enum {
     SLP_RESULT_HW_FAULT   = 6,
     SLP_RESULT_UNKNOWN    = 7
 } slp_result_t;
+
+typedef enum {
+    SLP_BATT_OK       = 0,
+    SLP_BATT_LOW      = 1, /* replace soon (weeks left) */
+    SLP_BATT_CRITICAL = 2  /* replace now: remote features may be shed */
+} slp_batt_level_t;
 
 typedef struct {
     uint8_t  cmd;

@@ -220,3 +220,29 @@ func (s *Scheduler) Result(c *Command, acked bool) Outcome {
 	s.mu.Unlock()
 	return Retrying
 }
+
+// TakeUrgent removes and returns P0/P1 unicast commands that can still go
+// out in the current period: free(cell) reports whether the lock's cell is
+// still ahead in this period and unused. This lets a remote unlock that
+// arrives mid-period go out in the lock's next slot instead of waiting for
+// the next period plan (latency ~ slot wait instead of up to 2 periods).
+func (s *Scheduler) TakeUrgent(now time.Time, free func(locktable.Cell) bool) []Tx {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	var txs []Tx
+	rest := s.pending[:0]
+	for _, c := range s.pending {
+		if c.IsGroup() || c.Priority > P1Interactive || (!c.ExpiresAt.IsZero() && now.After(c.ExpiresAt)) {
+			rest = append(rest, c)
+			continue
+		}
+		l, err := s.table.Get(c.LockEUI)
+		if err != nil || !free(l.Cell) {
+			rest = append(rest, c)
+			continue
+		}
+		txs = append(txs, Tx{Cell: l.Cell, Dst: l.Short, Cmd: c})
+	}
+	s.pending = rest
+	return txs
+}

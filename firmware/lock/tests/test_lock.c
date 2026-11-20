@@ -177,6 +177,99 @@ static void test_mac_wakeup_and_filtering(void)
     CHECK_EQ(lock_mac_replay_check(&m, &f), SLP_OK);
 }
 
+static void test_access_events_queued(void)
+{
+    setup();
+    const uint8_t uid[4] = { 0xDE, 0xAD, 0xBE, 0xEF };
+    const uint8_t bad[4] = { 1, 2, 3, 4 };
+    add_card(uid, 4, 0, 0, 1);
+    CHECK_EQ(lock_app_access(&app, SLP_CRED_CARD_UID, uid, 4), SLP_RESULT_OK);
+    CHECK_EQ(lock_app_access(&app, SLP_CRED_CARD_UID, bad, 4), SLP_RESULT_DENIED);
+
+    uint8_t buf[64];
+    slp_app_reader_t r;
+    slp_app_hdr_t h;
+    const uint8_t *v;
+    uint8_t l;
+    size_t n = lock_app_pop_event(&app, buf, sizeof(buf));
+    CHECK(n > 0);
+    CHECK_EQ(slp_app_parse(&r, buf, n, &h), SLP_OK);
+    CHECK_EQ(h.cmd, SLP_EVT_ACCESS);
+    CHECK_EQ(slp_app_find(&r, SLP_TLV_RESULT, &v, &l), 1);
+    CHECK_EQ(v[0], SLP_RESULT_OK);
+    CHECK_EQ(slp_app_find(&r, SLP_TLV_CRED_ID, &v, &l), 1);
+    CHECK_EQ(l, 4);
+    CHECK(memcmp(v, uid, 4) == 0);
+
+    n = lock_app_pop_event(&app, buf, sizeof(buf));
+    CHECK_EQ(slp_app_parse(&r, buf, n, &h), SLP_OK);
+    CHECK_EQ(slp_app_find(&r, SLP_TLV_RESULT, &v, &l), 1);
+    CHECK_EQ(v[0], SLP_RESULT_DENIED);
+    CHECK_EQ(lock_app_pop_event(&app, buf, sizeof(buf)), 0u);
+}
+
+static void test_battery_levels_and_hysteresis(void)
+{
+    setup();
+    uint8_t buf[64];
+    slp_app_reader_t r;
+    slp_app_hdr_t h;
+    const uint8_t *v;
+    uint8_t l;
+
+    hal_host.battery_mv = 5800;
+    CHECK_EQ(lock_app_battery_check(&app), SLP_BATT_OK);
+    CHECK_EQ(lock_app_pop_event(&app, buf, sizeof(buf)), 0u);
+
+    hal_host.battery_mv = 4300;
+    CHECK_EQ(lock_app_battery_check(&app), SLP_BATT_LOW);
+    size_t n = lock_app_pop_event(&app, buf, sizeof(buf));
+    CHECK_EQ(slp_app_parse(&r, buf, n, &h), SLP_OK);
+    CHECK_EQ(h.cmd, SLP_EVT_BATTERY);
+    CHECK_EQ(slp_app_find(&r, SLP_TLV_BATT_LEVEL, &v, &l), 1);
+    CHECK_EQ(v[0], SLP_BATT_LOW);
+
+    /* Small recovery (motor load gone) inside the hysteresis: stays LOW. */
+    hal_host.battery_mv = 4450;
+    CHECK_EQ(lock_app_battery_check(&app), SLP_BATT_LOW);
+    CHECK_EQ(lock_app_pop_event(&app, buf, sizeof(buf)), 0u);
+
+    hal_host.battery_mv = 3900;
+    CHECK_EQ(lock_app_battery_check(&app), SLP_BATT_CRITICAL);
+    CHECK(lock_app_pop_event(&app, buf, sizeof(buf)) > 0);
+
+    /* New batteries. */
+    hal_host.battery_mv = 6000;
+    CHECK_EQ(lock_app_battery_check(&app), SLP_BATT_OK);
+    CHECK(lock_app_pop_event(&app, buf, sizeof(buf)) > 0);
+
+    /* Access with a low battery gives the low-battery indication. */
+    const uint8_t uid[4] = { 5, 5, 5, 5 };
+    add_card(uid, 4, 0, 0, 77);
+    hal_host.battery_mv = 4200;
+    CHECK_EQ(lock_app_access(&app, SLP_CRED_CARD_UID, uid, 4), SLP_RESULT_OK);
+    CHECK_EQ(hal_host.last_ind, HAL_IND_LOW_BATT);
+
+    n = lock_app_heartbeat(&app, buf, sizeof(buf));
+    CHECK_EQ(slp_app_parse(&r, buf, n, &h), SLP_OK);
+    CHECK_EQ(h.cmd, SLP_EVT_HEARTBEAT);
+    CHECK_EQ(slp_app_find(&r, SLP_TLV_CRED_COUNT, &v, &l), 1);
+    CHECK_EQ(slp_le16(v), 1);
+    CHECK_EQ(slp_app_find(&r, SLP_TLV_LOCK_STATE, &v, &l), 1);
+    CHECK_EQ(v[0], LOCK_ST_UNLOCKED);
+}
+
+static void test_event_queue_overflow_keeps_newest(void)
+{
+    setup();
+    const uint8_t bad[4] = { 9, 9, 9, 9 };
+    for (int i = 0; i < 12; i++) {
+        lock_app_access(&app, SLP_CRED_CARD_UID, bad, 4);
+    }
+    CHECK_EQ(app.evq_count, LOCK_EVT_QUEUE);
+    CHECK_EQ(app.evt_dropped, 4u);
+}
+
 int main(void)
 {
     printf("lock firmware tests\n");
@@ -187,5 +280,8 @@ int main(void)
     RUN(test_emergency_holds_open);
     RUN(test_clutch_fault);
     RUN(test_mac_wakeup_and_filtering);
+    RUN(test_access_events_queued);
+    RUN(test_battery_levels_and_hysteresis);
+    RUN(test_event_queue_overflow_keeps_newest);
     UNIT_DONE();
 }

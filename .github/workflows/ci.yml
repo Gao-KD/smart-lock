@@ -10,7 +10,7 @@ jobs:
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v4
-      - name: Build and test protocol library and lock firmware (host)
+      - name: Build and test protocol library, lock firmware (host) and locksim
         run: |
           cmake -S . -B build -DCMAKE_BUILD_TYPE=Debug
           cmake --build build -j
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-24.04
     strategy:
       matrix:
-        module: [gateway, platform]
+        module: [common/slpgo, gateway, platform]
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-go@v5
@@ -32,3 +32,22 @@ jobs:
           test -z "$(gofmt -l .)"
           go vet ./...
           go test ./...
+
+  # Whole system on one runner: 360 virtual locks, 2 gateways, platform,
+  # then every feature demo end to end.
+  sim-e2e:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.24"
+      - name: Start simulator
+        run: |
+          scripts/sim.sh > sim.log 2>&1 &
+          for i in $(seq 1 60); do curl -sf localhost:8080/api/state?locks=0 >/dev/null && break; sleep 1; done
+      - name: Run all feature demos
+        run: scripts/demo.sh all
+      - name: Logs
+        if: always()
+        run: tail -n 50 sim.log .sim/logs/*.log

@@ -9,6 +9,26 @@ void lock_app_init(lock_app_t *a)
     lock_core_init(&a->core, 5);
     cred_init(&a->creds);
     slp_msgid_cache_reset(&a->dedup);
+    a->batt_level = SLP_BATT_OK;
+    a->evq_head = 0;
+    a->evq_count = 0;
+    a->evt_dropped = 0;
+    a->evt_seq = 0;
+}
+
+static lock_event_t *evq_push(lock_app_t *a)
+{
+    if (a->evq_count == LOCK_EVT_QUEUE) {
+        /* Drop the oldest: the newest state matters most. */
+        a->evq_head = (uint8_t)((a->evq_head + 1) % LOCK_EVT_QUEUE);
+        a->evq_count--;
+        a->evt_dropped++;
+    }
+    lock_event_t *e = &a->evq[(a->evq_head + a->evq_count) % LOCK_EVT_QUEUE];
+    a->evq_count++;
+    memset(e, 0, sizeof(*e));
+    e->at_unix = hal_unix_time();
+    return e;
 }
 
 static slp_result_t parse_cred(const slp_app_reader_t *r, cred_t *c)
@@ -113,11 +133,26 @@ size_t lock_app_handle_command(lock_app_t *a, const uint8_t *req, size_t req_len
         return 0;
     }
     if (h.cmd == SLP_CMD_STATUS) {
-        if (slp_app_put_u16(&w, SLP_TLV_BATTERY_MV, hal_battery_mv()) != SLP_OK) {
+        if (slp_app_put_u16(&w, SLP_TLV_BATTERY_MV, hal_battery_mv()) != SLP_OK ||
+            slp_app_put_u8(&w, SLP_TLV_LOCK_STATE, (uint8_t)a->core.state) != SLP_OK ||
+            slp_app_put_u16(&w, SLP_TLV_CRED_COUNT, a->creds.count) != SLP_OK ||
+            slp_app_put_u8(&w, SLP_TLV_BATT_LEVEL, a->batt_level) != SLP_OK) {
             return 0;
         }
     }
     return w.len;
+}
+
+static void queue_access(lock_app_t *a, uint8_t cred_type, const uint8_t *id, uint8_t id_len,
+                         uint32_t user_id, slp_result_t res)
+{
+    lock_event_t *e = evq_push(a);
+    e->type = SLP_EVT_ACCESS;
+    e->result = (uint8_t)res;
+    e->cred_type = cred_type;
+    e->id_len = id_len > CRED_ID_MAX ? CRED_ID_MAX : id_len;
+    memcpy(e->id, id, e->id_len);
+    e->user_id = user_id;
 }
 
 slp_result_t lock_app_access(lock_app_t *a, uint8_t cred_type, const uint8_t *id, uint8_t id_len)
@@ -125,6 +160,7 @@ slp_result_t lock_app_access(lock_app_t *a, uint8_t cred_type, const uint8_t *id
     const cred_t *c = cred_match(&a->creds, cred_type, id, id_len, hal_unix_time());
     if (c == NULL) {
         hal_indicate(HAL_IND_DENIED);
+        queue_access(a, cred_type, id, id_len, 0, SLP_RESULT_DENIED);
         return SLP_RESULT_DENIED;
     }
     lock_source_t src;
@@ -135,6 +171,76 @@ slp_result_t lock_app_access(lock_app_t *a, uint8_t cred_type, const uint8_t *id
     case SLP_CRED_FACE:        src = LOCK_SRC_FACE; break;
     default:                   src = LOCK_SRC_BLE; break;
     }
-    /* TODO: append to event log and queue SLP_EVT_ACCESS uplink. */
-    return lock_core_unlock(&a->core, src, 0);
+    slp_result_t res = lock_core_unlock(&a->core, src, 0);
+    queue_access(a, cred_type, id, id_len, c->user_id, res);
+    if (res == SLP_RESULT_OK && lock_app_battery_check(a) != SLP_BATT_OK) {
+        hal_indicate(HAL_IND_LOW_BATT); /* extra beep pattern at the door */
+    }
+    return res;
+}
+
+slp_batt_level_t lock_app_battery_check(lock_app_t *a)
+{
+    uint16_t mv = hal_battery_mv();
+    uint8_t lvl = a->batt_level;
+    /* Going down uses the threshold, going up needs threshold + hysteresis. */
+    if (mv < LOCK_BATT_CRITICAL_MV) {
+        lvl = SLP_BATT_CRITICAL;
+    } else if (mv < LOCK_BATT_LOW_MV) {
+        if (lvl == SLP_BATT_OK || mv >= LOCK_BATT_CRITICAL_MV + LOCK_BATT_HYST_MV) {
+            lvl = SLP_BATT_LOW;
+        }
+    } else if (mv >= LOCK_BATT_LOW_MV + LOCK_BATT_HYST_MV || lvl == SLP_BATT_OK) {
+        lvl = SLP_BATT_OK;
+    }
+    if (lvl != a->batt_level) {
+        a->batt_level = lvl;
+        lock_event_t *e = evq_push(a);
+        e->type = SLP_EVT_BATTERY;
+        e->battery_mv = mv;
+        e->batt_level = lvl;
+    }
+    return (slp_batt_level_t)a->batt_level;
+}
+
+size_t lock_app_pop_event(lock_app_t *a, uint8_t *buf, size_t cap)
+{
+    if (a->evq_count == 0) {
+        return 0;
+    }
+    const lock_event_t *e = &a->evq[a->evq_head];
+    slp_app_writer_t w;
+    slp_app_hdr_t h = { .cmd = e->type, .msg_id = ++a->evt_seq, .expires_at = 0 };
+    int rc = slp_app_begin(&w, buf, cap, &h);
+    if (rc == SLP_OK) {
+        rc = slp_app_put_u32(&w, SLP_TLV_UNIX_TIME, e->at_unix);
+    }
+    if (rc == SLP_OK && e->type == SLP_EVT_ACCESS) {
+        rc = slp_app_put_u8(&w, SLP_TLV_RESULT, e->result);
+        if (rc == SLP_OK) rc = slp_app_put_u8(&w, SLP_TLV_CRED_TYPE, e->cred_type);
+        if (rc == SLP_OK) rc = slp_app_put(&w, SLP_TLV_CRED_ID, e->id, e->id_len);
+        if (rc == SLP_OK && e->user_id) rc = slp_app_put_u32(&w, SLP_TLV_USER_ID, e->user_id);
+    } else if (rc == SLP_OK) {
+        rc = slp_app_put_u16(&w, SLP_TLV_BATTERY_MV, e->battery_mv);
+        if (rc == SLP_OK) rc = slp_app_put_u8(&w, SLP_TLV_BATT_LEVEL, e->batt_level);
+    }
+    a->evq_head = (uint8_t)((a->evq_head + 1) % LOCK_EVT_QUEUE);
+    a->evq_count--;
+    return rc == SLP_OK ? w.len : 0;
+}
+
+size_t lock_app_heartbeat(lock_app_t *a, uint8_t *buf, size_t cap)
+{
+    lock_app_battery_check(a);
+    slp_app_writer_t w;
+    slp_app_hdr_t h = { .cmd = SLP_EVT_HEARTBEAT, .msg_id = ++a->evt_seq, .expires_at = 0 };
+    if (slp_app_begin(&w, buf, cap, &h) != SLP_OK ||
+        slp_app_put_u8(&w, SLP_TLV_LOCK_STATE, (uint8_t)a->core.state) != SLP_OK ||
+        slp_app_put_u16(&w, SLP_TLV_BATTERY_MV, hal_battery_mv()) != SLP_OK ||
+        slp_app_put_u8(&w, SLP_TLV_BATT_LEVEL, a->batt_level) != SLP_OK ||
+        slp_app_put_u16(&w, SLP_TLV_CRED_COUNT, a->creds.count) != SLP_OK ||
+        slp_app_put_u32(&w, SLP_TLV_UNIX_TIME, hal_unix_time()) != SLP_OK) {
+        return 0;
+    }
+    return w.len;
 }
