@@ -37,7 +37,7 @@ slp_result_t cred_add(cred_store_t *s, const cred_t *c)
         return SLP_RESULT_BAD_PARAM;
     }
     if (c->type == SLP_CRED_PASSWORD &&
-        (c->id_len < CRED_PWD_MIN || c->id_len > CRED_PWD_MAX || !all_digits(c->id, c->id_len))) {
+        (c->id_len < CRED_PIN_MIN_DIGITS || c->id_len > CRED_PIN_MAX_DIGITS || !all_digits(c->id, c->id_len))) {
         return SLP_RESULT_BAD_PARAM;
     }
     if (c->day_end_min > 24 * 60 || c->day_start_min > 24 * 60) {

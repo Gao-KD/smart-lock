@@ -28,10 +28,10 @@ extern "C" {
 #define CRED_MAX 1000
 #endif
 #define CRED_ID_MAX 16
-/* Keypad passwords: 6..10 digits stored, up to 16 digits typed (decoy
- * digits around the real password, "虚位密码"). */
-#define CRED_PWD_MIN 6
-#define CRED_PWD_MAX 10
+/* Keypad codes are stored with 6 to 10 digits; up to 16 digits may be typed
+ * (decoy digits around the real code, "虚位密码"). */
+#define CRED_PIN_MIN_DIGITS 6
+#define CRED_PIN_MAX_DIGITS 10
 #define CRED_KEYPAD_MAX 16
 
 typedef struct {
