@@ -58,6 +58,7 @@ func main() {
 	reg := console.Registry{Tenant: *tenant, Layout: layout}
 	svc := dispatch.New(dispatch.Config{}, reg, console.Sealer{}, pub)
 	con := console.New(*tenant, layout, svc, *offline)
+	go con.RunBackground(context.Background()) // pulls missing lock records (READ_LOG)
 
 	if *locksim != "" {
 		sc, err := console.NewSimCtl(*locksim, con.OnFirmwareLog)

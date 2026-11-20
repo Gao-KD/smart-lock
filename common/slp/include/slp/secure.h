@@ -34,6 +34,9 @@ extern "C" {
 #define SLP_DIR_DOWN 0x00u
 #define SLP_DIR_UP   0x40u
 #define SLP_UPSEQ_LEN 4u
+/* Domain bit for local credentials (offline passwords, BLE tokens): these
+ * MACs can never collide with a message nonce. */
+#define SLP_DIR_LOCAL 0x20u
 
 /* Seals a plaintext app message in place. buf must have room for len + 8
  * (downlink) or len + 12 (uplink: UPSEQ is prepended). */
@@ -48,6 +51,10 @@ int slp_app_open_down(slp_key_handle_t key, uint64_t nonce_eui, uint8_t *buf, si
                       size_t *plain_len);
 int slp_app_open_up(slp_key_handle_t key, uint64_t lock_eui, uint8_t *buf, size_t len,
                     uint32_t *upseq, size_t *plain_len);
+
+/* 8-byte MAC of msg under `key` (AES-CCM with empty plaintext, msg as
+ * AAD, nonce = eui | 0xFFFFFFFF | MIC64 | SLP_DIR_LOCAL). */
+int slp_app_mac(slp_key_handle_t key, uint64_t eui, const uint8_t *msg, size_t len, uint8_t out[8]);
 
 /* Builds a secured frame: f->payload is encrypted with `key` (MIC 4).
  * f->security must be true and f->frame_counter set. */

@@ -63,6 +63,8 @@ typedef struct {
     uint8_t        captured[SLP_MAX_FRAME_LEN]; /* last unicast frame heard by an eavesdropper */
     size_t         captured_len;
     lock_state_t   last_state;
+    lock_upq_t     upq;          /* reliable uplink: waits for the gateway's ACK */
+    uint8_t        up_seq;       /* MAC SEQ of uplink frames */
 } vlock_t;
 
 typedef struct {
@@ -142,6 +144,10 @@ static const char *cmd_name(uint8_t c)
     case SLP_CMD_CRED_CLEAR: return "清空凭证";
     case SLP_CMD_TIME_SYNC: return "校时";
     case SLP_CMD_STATUS: return "状态查询";
+    case SLP_CMD_USER_DEL: return "删除成员";
+    case SLP_CMD_USER_FREEZE: return "冻结/解冻成员";
+    case SLP_CMD_READ_LOG: return "补传记录";
+    case SLP_CMD_CONFIG: return "参数配置";
     default: return "未知指令";
     }
 }
@@ -149,15 +155,17 @@ static const char *cmd_name(uint8_t c)
 static const char *result_name(uint8_t r)
 {
     static const char *n[] = { "OK", "EXPIRED(已过期)", "DUPLICATE(重复, 不再执行)", "DENIED",
-                               "BAD_PARAM", "FULL", "HW_FAULT", "UNKNOWN" };
-    return r < 8 ? n[r] : "?";
+                               "BAD_PARAM", "FULL", "HW_FAULT", "UNKNOWN", "DOUBLE_LOCKED(已反锁)",
+                               "LOCKED_OUT(试错冻结中)", "FROZEN(成员已冻结)", "OUT_OF_SCHEDULE(不在允许时段)",
+                               "NEED_REQUEST(远程开门需访客请求)" };
+    return r < 13 ? n[r] : "?";
 }
 
 /* ---- uplink ---- */
 static void send_rx(gwctx_t *g, uint8_t ch, int8_t rssi, const uint8_t *frame, size_t len)
 {
-    if (!g->have_peer) {
-        return;
+    if (!g->have_peer || chance(loss_pct)) {
+        return; /* lost on the air */
     }
     uint8_t m[4 + SLP_MAX_FRAME_LEN];
     m[0] = SIM_MSG_RX;
@@ -175,8 +183,9 @@ static int8_t lock_rssi(const vlock_t *lk)
 }
 
 /* Seals a plaintext app message end to end, wraps it in a secured link frame
- * and transmits it to the gateway. */
-static void lock_uplink(vlock_t *lk, uint8_t *msg, size_t len)
+ * (ACK requested) and transmits it to the gateway. Retransmissions are
+ * sealed again with a fresh UPSEQ and frame counter. */
+static void lock_transmit(vlock_t *lk, const uint8_t *msg, size_t len)
 {
     int i = (int)(lk - locks);
     gwctx_t *g = &gws[lk->gw];
@@ -192,8 +201,9 @@ static void lock_uplink(vlock_t *lk, uint8_t *msg, size_t len)
     if (slp_txctr_take(&lk->txc, &fc, &np, &pv) != SLP_OK) {
         return;
     }
+    uint8_t seq = ++lk->up_seq;
     slp_frame_t f = {
-        .type = SLP_FT_DATA, .security = true, .seq = (uint8_t)fc, .pan_id = lk->mac.pan_id,
+        .type = SLP_FT_DATA, .security = true, .ack_request = true, .seq = seq, .pan_id = lk->mac.pan_id,
         .dst_mode = SLP_ADDR_SHORT, .dst = 0x0000, .src_mode = SLP_ADDR_SHORT,
         .src = lk->mac.short_addr, .frame_counter = fc, .key_id = SLP_KEY_LINK,
         .payload = buf, .payload_len = sealed,
@@ -204,16 +214,57 @@ static void lock_uplink(vlock_t *lk, uint8_t *msg, size_t len)
         vlog(lk, "上行帧过长");
         return;
     }
+    lock_upq_sent(&lk->upq, seq, now_ms());
     send_rx(g, lk->mac.channel, lock_rssi(lk), frame, flen);
 }
 
+/* Sends the head of the uplink queue if it is due (first try or retry). */
+static void upq_service(vlock_t *lk)
+{
+    uint32_t t = now_ms();
+    if (lock_upq_check_timeout(&lk->upq, t)) {
+        vlog(lk, "上行消息重发 %u 次仍无 ACK，放弃 (事件仍在记录日志里，平台可补拉)", LOCK_UPQ_TRIES);
+    }
+    if (!lk->joined || !lk->rf_on || !gws[lk->gw].have_peer) {
+        return;
+    }
+    const lock_upq_item_t *it = lock_upq_due(&lk->upq, t);
+    if (it) {
+        if (lk->upq.tries > 0) {
+            vlog(lk, "上行未收到网关 ACK，第 %u 次重发", lk->upq.tries);
+        }
+        lock_transmit(lk, it->msg, it->len);
+    }
+}
+
+static void lock_uplink(vlock_t *lk, uint8_t *msg, size_t len)
+{
+    if (!lock_upq_push(&lk->upq, msg, len)) {
+        vlog(lk, "上行队列已满，丢弃一条消息");
+        return;
+    }
+    upq_service(lk);
+}
+
+/* Moves recorded events into the uplink queue while it has room; the rest
+ * wait in the lock (and its record log). */
 static void flush_events(vlock_t *lk)
 {
     uint8_t m[96];
     size_t n;
-    while (lk->joined && lk->rf_on && (n = lock_app_pop_event(&lk->app, m, sizeof(m))) > 0) {
+    while (lk->joined && lk->rf_on && lock_upq_free(&lk->upq) > 0 &&
+           (n = lock_app_pop_event(&lk->app, m, sizeof(m))) > 0) {
         lock_uplink(lk, m, n);
     }
+}
+
+static void send_heartbeat(vlock_t *lk, slp_hb_reason_t why)
+{
+    uint8_t m[96];
+    size_t n = lock_app_heartbeat(&lk->app, m, sizeof(m), why);
+    if (n) lock_uplink(lk, m, n);
+    flush_events(lk);
+    lk->hb_due_ms = now_ms() + lock_app_heartbeat_ms(&lk->app, (uint32_t)rand());
 }
 
 static void send_join_req(vlock_t *lk)
@@ -247,6 +298,8 @@ static void on_join_accept(vlock_t *lk, const slp_frame_t *f)
     lk->mac.groups[0] = SLP_SHORT_BROADCAST;
     lk->mac.group_count = 1;
     lk->joined = true;
+    lock_upq_init(&lk->upq);
+    lock_mac_on_beacon(&lk->mac, now_ms(), 0);
     lk->hb_due_ms = now_ms() + (uint32_t)(rand() % (hb_s * 1000));
     vlog(lk, "入网成功: 短地址 0x%04x, 信道 %u, 时隙 %u (每 %u ms 侦听一次)", short_addr, ch,
          slot, period);
@@ -267,6 +320,14 @@ static bool lock_rx(vlock_t *lk, const uint8_t *in, size_t len, bool attacker)
     }
     if (f.type == SLP_FT_MAC_CMD && f.dst_mode == SLP_ADDR_LONG && f.dst == lk->eui) {
         on_join_accept(lk, &f);
+        return false;
+    }
+    if (f.type == SLP_FT_ACK) {
+        if (lk->joined && f.dst_mode == SLP_ADDR_SHORT && (uint16_t)f.dst == lk->mac.short_addr &&
+            f.pan_id == lk->mac.pan_id && lock_upq_on_ack(&lk->upq, f.seq)) {
+            flush_events(lk);
+            upq_service(lk); /* next queued uplink right away */
+        }
         return false;
     }
     if (f.type != SLP_FT_DATA || !lk->joined || !lock_mac_addressed_to_me(&lk->mac, &f)) {
@@ -323,7 +384,7 @@ static void deliver_now(int gi, const uint8_t *frame, size_t len)
 {
     gwctx_t *g = &gws[gi];
     for (int k = g->first; k < g->first + g->count; k++) {
-        if (locks[k].rf_on) {
+        if (locks[k].rf_on && !chance(loss_pct)) {
             lock_rx(&locks[k], frame, len, false);
         }
     }
@@ -387,6 +448,7 @@ static void on_hello(int gi, const uint8_t *m, size_t n)
         uint32_t t = now_ms();
         for (int k = g->first; k < g->first + g->count; k++) {
             locks[k].joined = false;
+            locks[k].mac.join_attempts = 0;
             locks[k].join_due_ms = t + 100 + (uint32_t)(rand() % 1500);
         }
     }
@@ -406,9 +468,21 @@ static void on_period(int gi, const uint8_t *m, size_t n)
     uint8_t bbuf[SLP_MAX_FRAME_LEN];
     memcpy(bbuf, m + p, blen);
     if (blen && slp_frame_decode(bbuf, blen, &bf) == SLP_OK && bf.type == SLP_FT_BEACON) {
+        uint32_t unix_s = bf.payload_len >= 8 ? slp_le32(bf.payload + 4) : 0;
         for (int k = g->first; k < g->first + g->count; k++) {
-            if (locks[k].rf_on && locks[k].joined) {
-                lock_mac_on_beacon(&locks[k].mac, start, 0);
+            vlock_t *lk = &locks[k];
+            if (!lk->rf_on || !lk->joined || chance(loss_pct)) {
+                continue;
+            }
+            hal_sim_cur = &lk->hw;
+            bool back = lock_mac_on_beacon(&lk->mac, start, 0);
+            if (unix_s) {
+                int32_t d = lock_app_time_sync(&lk->app, unix_s);
+                if (d) vlog(lk, "信标校时: 门锁时钟偏差 %d 秒，已按网关时间校正", (int)d);
+            }
+            if (back) {
+                vlog(lk, "重新收到网关信标 (连接恢复)，上报重连心跳并补发未送达的消息");
+                send_heartbeat(lk, SLP_HB_RECONNECT);
             }
         }
     }
@@ -514,25 +588,27 @@ static size_t snapshot(char *out, size_t cap)
 {
     uint32_t t = now_ms();
     size_t n = (size_t)snprintf(out, cap, "SNAP %d %d %d %d %d\n", nlocks, building, floors, rooms, loss_pct);
-    for (int k = 0; k < nlocks && n + 96 < cap; k++) {
+    for (int k = 0; k < nlocks && n + 160 < cap; k++) {
         vlock_t *lk = &locks[k];
         uint32_t age = lk->hw.ind_calls ? t - lk->hw.last_ind_ms : 999999;
-        n += (size_t)snprintf(out + n, cap - n, "%016llx %d %u %d %d %u %u %d %d %u %d %d %u\n",
+        n += (size_t)snprintf(out + n, cap - n, "%016llx %d %u %d %d %u %u %d %d %u %d %d %u %u %u %u %d %u %u\n",
                               (unsigned long long)lk->eui, (int)lk->app.core.state, lk->hw.battery_mv,
                               lk->rf_on, lk->joined, lk->app.creds.count, lk->app.batt_level,
                               lk->hw.clutch_engaged, (int)lk->hw.last_ind, age, lk->mac.channel,
-                              lk->mac.my_slot, lk->mac.short_addr);
+                              lk->mac.my_slot, lk->mac.short_addr, lock_app_flags(&lk->app),
+                              lk->app.log_seq, (unsigned)lk->upq.count + lk->app.evq_count,
+                              (int)lk->hw.unix_offset, lk->app.cfg.autolock_s, lk->app.cfg.remote_allowed);
     }
     return n;
 }
 
 static void on_ctrl(char *line, const struct sockaddr_in *from)
 {
-    static char out[65000];
+    static char out[65500];
     char *nl = strpbrk(line, "\r\n");
     if (nl) *nl = 0;
-    char cmd[16] = "", a1[64] = "", a2[64] = "";
-    sscanf(line, "%15s %63s %63s", cmd, a1, a2);
+    char cmd[16] = "", a1[64] = "", a2[80] = "";
+    sscanf(line, "%15s %63s %79s", cmd, a1, a2);
 
     if (!strcmp(cmd, "snapshot")) {
         reply(from, out, snapshot(out, sizeof(out)));
@@ -579,18 +655,63 @@ static void on_ctrl(char *line, const struct sockaddr_in *from)
         n = snprintf(out, sizeof(out), "OK %d", lv);
     } else if (!strcmp(cmd, "rf")) {
         lk->rf_on = strcmp(a2, "off") != 0;
-        vlog(lk, lk->rf_on ? "射频恢复 (锁重新在线)" : "射频被遮挡 (锁离线，收不到任何指令)");
-        if (lk->rf_on && lk->joined) {
-            /* Back in range: the lock re-syncs on the next beacon and
-             * announces itself with a heartbeat, so the platform knows it is
-             * reachable again (and re-sends parked commands). */
-            uint8_t m[64];
-            size_t hn = lock_app_heartbeat(&lk->app, m, sizeof(m));
-            if (hn) lock_uplink(lk, m, hn);
-            flush_events(lk);
-            lk->hb_due_ms = now_ms() + (uint32_t)hb_s * 1000u;
-        }
+        /* Back in range: the lock re-syncs on the next beacon and, if it
+         * was gone for more than LOCK_MAC_LOST_MS, announces itself with a
+         * RECONNECT heartbeat (see on_period). */
+        vlog(lk, lk->rf_on ? "射频恢复，等待下一个网关信标" : "射频被遮挡 (锁离线，收不到任何指令，事件暂存在锁里)");
         n = snprintf(out, sizeof(out), "OK %d", lk->rf_on);
+    } else if (!strcmp(cmd, "keypad")) {
+        uint8_t d[CRED_KEYPAD_MAX];
+        size_t dl = strlen(a2);
+        if (dl == 0 || dl > CRED_KEYPAD_MAX) {
+            n = snprintf(out, sizeof(out), "ERR digits");
+        } else {
+            memcpy(d, a2, dl);
+            slp_result_t r = lock_app_keypad(&lk->app, d, (uint8_t)dl);
+            vlog(lk, "键盘输入 %zu 位密码 -> %s, 门锁状态 %s", dl, r == SLP_RESULT_OK ? "通过" : result_name(r),
+                 lock_state_name(lk->app.core.state));
+            flush_events(lk);
+            n = snprintf(out, sizeof(out), "OK %d %s", r, lock_state_name(lk->app.core.state));
+        }
+    } else if (!strcmp(cmd, "ble")) {
+        uint8_t tok[32];
+        int tl = parse_hex(a2, tok, sizeof(tok));
+        slp_result_t r = lock_app_ble(&lk->app, tok, (uint8_t)tl);
+        vlog(lk, "手机蓝牙开门 (离线令牌，不经过网关) -> %s, 门锁状态 %s", r == SLP_RESULT_OK ? "通过" : result_name(r),
+             lock_state_name(lk->app.core.state));
+        flush_events(lk);
+        n = snprintf(out, sizeof(out), "OK %d %s", r, lock_state_name(lk->app.core.state));
+    } else if (!strcmp(cmd, "door")) {
+        bool open = !strcmp(a2, "open");
+        lock_app_door(&lk->app, open);
+        vlog(lk, open ? "门磁: 门被推开" : "门磁: 门已关上%s", lk->app.core.state == LOCK_ST_LOCKED ? "，立即落锁" : "");
+        flush_events(lk);
+        n = snprintf(out, sizeof(out), "OK %s", lock_state_name(lk->app.core.state));
+    } else if (!strcmp(cmd, "dlock")) {
+        bool on = !strcmp(a2, "on");
+        lock_app_double_lock(&lk->app, on);
+        vlog(lk, on ? "室内反锁 (拧下反锁旋钮，外面任何方式都打不开)" : "解除反锁");
+        flush_events(lk);
+        n = snprintf(out, sizeof(out), "OK");
+    } else if (!strcmp(cmd, "pry")) {
+        lock_app_tamper(&lk->app);
+        vlog(lk, "防撬开关触发: 面板被撬");
+        flush_events(lk);
+        n = snprintf(out, sizeof(out), "OK");
+    } else if (!strcmp(cmd, "key")) {
+        lock_app_mech_key(&lk->app);
+        vlog(lk, "机械钥匙开门 (应急钥匙孔)");
+        flush_events(lk);
+        n = snprintf(out, sizeof(out), "OK");
+    } else if (!strcmp(cmd, "doorbell")) {
+        uint16_t id = lock_app_doorbell(&lk->app);
+        vlog(lk, "访客按下呼叫键，发出开门请求 %u (%u 秒内有效)", id, LOCK_REQ_WINDOW_S);
+        flush_events(lk);
+        n = snprintf(out, sizeof(out), "OK %u", id);
+    } else if (!strcmp(cmd, "clock")) {
+        lk->hw.unix_offset += atoi(a2);
+        vlog(lk, "(模拟) 门锁时钟漂移 %+d 秒", atoi(a2));
+        n = snprintf(out, sizeof(out), "OK");
     } else if (!strcmp(cmd, "dropack")) {
         lk->drop_acks = atoi(a2);
         n = snprintf(out, sizeof(out), "OK");
@@ -630,7 +751,11 @@ static void tick(void)
     for (int k = 0; k < nlocks; k++) {
         vlock_t *lk = &locks[k];
         hal_sim_cur = &lk->hw;
-        lock_core_tick(&lk->app.core);
+        lock_app_tick(&lk->app);
+        if (lk->app.evq_count) {
+            flush_events(lk); /* alarms raised by the tick, events held while offline */
+        }
+        upq_service(lk);
         if (lk->app.core.state != lk->last_state) {
             if (lk->last_state == LOCK_ST_UNLOCKED && lk->app.core.state == LOCK_ST_LOCKED) {
                 vlog(lk, "开门时间到，自动落锁");
@@ -642,16 +767,18 @@ static void tick(void)
         }
         if (!lk->joined && (int32_t)(t - lk->join_due_ms) >= 0) {
             send_join_req(lk);
-            lk->join_due_ms = t + 3000 + (uint32_t)(rand() % 2000); /* retry if no accept */
+            /* retry with exponential back-off if no accept */
+            lk->join_due_ms = t + lock_mac_join_backoff(&lk->mac, (uint32_t)rand());
         }
         if (lk->joined && (int32_t)(t - lk->hb_due_ms) >= 0) {
-            uint8_t m[64];
-            size_t n = lock_app_heartbeat(&lk->app, m, sizeof(m));
-            if (n) lock_uplink(lk, m, n);
-            flush_events(lk);
-            lk->hb_due_ms = t + (uint32_t)hb_s * 1000u;
+            send_heartbeat(lk, SLP_HB_PERIODIC);
         }
         lock_mac_check_sync(&lk->mac, t);
+        if (lk->joined && lock_mac_need_rejoin(&lk->mac, t)) {
+            vlog(lk, "长时间收不到网关信标，重新入网");
+            lk->joined = false;
+            lk->join_due_ms = t + lock_mac_join_backoff(&lk->mac, (uint32_t)rand());
+        }
     }
 }
 
@@ -732,7 +859,11 @@ int main(int argc, char **argv)
             lk->rf_on = true;
             lk->hw.battery_mv = (uint16_t)(5600 + rand() % 400);
             hal_sim_cur = &lk->hw;
+            lk->hw.eui = lk->eui;
+            lk->hw.app_key = H_APP(k);
             lock_app_init(&lk->app);
+            lk->app.cfg.heartbeat_s = (uint16_t)hb_s;
+            lk->app.cfg.door_alarm_s = 30; /* shorter than the real default, for the demo */
             slp_txctr_restore(&lk->txc, seed_ctr);
             lk->upseq = seed_ctr;
             sim_derive_key(SIM_TAG_LINK, lk->eui, key);

@@ -140,3 +140,10 @@ int slp_frame_open_secure(slp_key_handle_t key, uint64_t sender_eui, uint8_t *bu
     f->payload_len -= SLP_LINK_MIC_LEN;
     return SLP_OK;
 }
+
+int slp_app_mac(slp_key_handle_t key, uint64_t eui, const uint8_t *msg, size_t len, uint8_t out[8])
+{
+    uint8_t nonce[SLP_NONCE_LEN];
+    slp_ccm_nonce(eui, 0xFFFFFFFFu, SLP_SEC_ENC_MIC64 | SLP_DIR_LOCAL, nonce);
+    return slp_ccm_encrypt(key, nonce, msg, len, out, 0, SLP_APP_MIC_LEN);
+}

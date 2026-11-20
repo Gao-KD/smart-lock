@@ -30,19 +30,27 @@ const (
 
 // Command codes, mirroring common/slp/include/slp/app.h.
 const (
-	CmdUnlock    uint8 = 0x01
-	CmdLockdown  uint8 = 0x02
-	CmdRelease   uint8 = 0x03
-	CmdEmergency uint8 = 0x04
-	CmdCredAdd   uint8 = 0x10
-	CmdCredDel   uint8 = 0x11
-	CmdStatus    uint8 = 0x50
+	CmdUnlock     uint8 = 0x01
+	CmdLockdown   uint8 = 0x02
+	CmdRelease    uint8 = 0x03
+	CmdEmergency  uint8 = 0x04
+	CmdCredAdd    uint8 = 0x10
+	CmdCredDel    uint8 = 0x11
+	CmdCredClear  uint8 = 0x12
+	CmdUserDel    uint8 = 0x13
+	CmdUserFreeze uint8 = 0x14
+	CmdReadLog    uint8 = 0x20
+	CmdConfig     uint8 = 0x30
+	CmdTimeSync   uint8 = 0x31
+	CmdStatus     uint8 = 0x50
 )
 
 // CmdNames are the Chinese labels shown in the console.
 var CmdNames = map[uint8]string{
 	CmdUnlock: "远程开门", CmdLockdown: "封锁", CmdRelease: "解除封锁", CmdEmergency: "应急常开",
-	CmdCredAdd: "添加卡", CmdCredDel: "删除卡", CmdStatus: "状态查询",
+	CmdCredAdd: "添加凭证", CmdCredDel: "删除凭证", CmdCredClear: "清空凭证", CmdUserDel: "删除成员",
+	CmdUserFreeze: "冻结/解冻成员", CmdReadLog: "补传记录", CmdConfig: "参数配置", CmdTimeSync: "校时",
+	CmdStatus: "状态查询",
 }
 
 const BroadcastGroup uint16 = 0xFFFF

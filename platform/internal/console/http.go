@@ -13,6 +13,7 @@ import (
 	"time"
 
 	"github.com/Gao-KD/smart-lock/common/slpgo/simnet"
+	"github.com/Gao-KD/smart-lock/common/slpgo/slp"
 	"github.com/Gao-KD/smart-lock/platform/internal/dispatch"
 )
 
@@ -71,11 +72,7 @@ func (c *Console) Handler() http.Handler {
 		c.submit(w, eui, dispatch.CmdRelease, nil, dispatch.P1Interactive)
 	}))
 	mux.HandleFunc("POST /api/locks/{lock}/cards", c.withLock(func(w http.ResponseWriter, r *http.Request, eui uint64) {
-		var body struct {
-			UID       string `json:"uid"`
-			UserID    uint32 `json:"user_id"`
-			ValidDays int    `json:"valid_days"`
-		}
+		var body credBody
 		if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 			http.Error(w, "bad body", http.StatusBadRequest)
 			return
@@ -85,12 +82,14 @@ func (c *Console) Handler() http.Handler {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-		var to time.Time
-		if body.ValidDays > 0 {
-			to = time.Now().Add(time.Duration(body.ValidDays) * 24 * time.Hour)
+		tlv, err := credTLV(slp.CredCardUID, uid, body)
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusBadRequest)
+			return
 		}
-		c.submit(w, eui, dispatch.CmdCredAdd, CardTLV(uid, body.UserID, to), dispatch.P2Management)
+		c.submit(w, eui, dispatch.CmdCredAdd, tlv, dispatch.P2Management)
 	}))
+	c.registerFeatures(mux)
 	mux.HandleFunc("DELETE /api/locks/{lock}/cards/{uid}", c.withLock(func(w http.ResponseWriter, r *http.Request, eui uint64) {
 		uid, err := parseUID(r.PathValue("uid"))
 		if err != nil {
@@ -122,6 +121,13 @@ func (c *Console) Handler() http.Handler {
 			c.bulk(w, b, "全楼逐间远程开门 (单播 P1)", dispatch.CmdUnlock, dispatch.P1Interactive, func(int, int) []byte { return nil })
 		case "status-all":
 			c.bulk(w, b, "全楼状态巡检", dispatch.CmdStatus, dispatch.P1Interactive, func(int, int) []byte { return nil })
+		case "clear-creds":
+			c.bulk(w, b, "全楼清空凭证 (毕业季/学期末)", dispatch.CmdCredClear, dispatch.P2Management, func(int, int) []byte { return nil })
+		case "config":
+			tlv, ok := c.configTLV(w, r)
+			if ok {
+				c.bulk(w, b, "全楼统一参数配置", dispatch.CmdConfig, dispatch.P2Management, func(int, int) []byte { return tlv })
+			}
 		default:
 			http.Error(w, "unknown action", http.StatusNotFound)
 		}
@@ -134,10 +140,14 @@ func (c *Console) Handler() http.Handler {
 			return
 		}
 		var body struct {
-			UID string `json:"uid"`
-			MV  int    `json:"mv"`
-			On  *bool  `json:"on"`
-			N   int    `json:"n"`
+			UID    string `json:"uid"`
+			MV     int    `json:"mv"`
+			On     *bool  `json:"on"`
+			N      int    `json:"n"`
+			Digits string `json:"digits"`
+			Token  string `json:"token"`
+			Open   *bool  `json:"open"`
+			DeltaS int    `json:"delta_s"`
 		}
 		_ = json.NewDecoder(r.Body).Decode(&body)
 		id := fmt.Sprintf("%016x", eui)
@@ -159,8 +169,27 @@ func (c *Console) Handler() http.Handler {
 			cmd = fmt.Sprintf("dropack %s %d", id, max(body.N, 1))
 		case "jam":
 			cmd = fmt.Sprintf("jam %s %d", id, max(body.N, 1))
-		case "replay", "tamper":
+		case "replay", "tamper", "pry", "key", "doorbell":
 			cmd = r.PathValue("action") + " " + id
+		case "keypad":
+			if !validDigits(body.Digits) {
+				http.Error(w, "digits: 1..16 of 0-9", http.StatusBadRequest)
+				return
+			}
+			cmd = "keypad " + id + " " + body.Digits
+		case "ble":
+			tok, err := hex.DecodeString(body.Token)
+			if err != nil || len(tok) == 0 || len(tok) > 32 {
+				http.Error(w, "token: hex", http.StatusBadRequest)
+				return
+			}
+			cmd = "ble " + id + " " + hex.EncodeToString(tok)
+		case "door":
+			cmd = "door " + id + map[bool]string{true: " open", false: " close"}[body.Open != nil && *body.Open]
+		case "dlock":
+			cmd = "dlock " + id + map[bool]string{true: " on", false: " off"}[body.On == nil || *body.On]
+		case "clock":
+			cmd = fmt.Sprintf("clock %s %d", id, body.DeltaS)
 		default:
 			http.Error(w, "unknown action", http.StatusNotFound)
 			return
@@ -285,6 +314,18 @@ func (c *Console) locksOn(gateway string) int {
 		}
 	}
 	return n
+}
+
+func validDigits(s string) bool {
+	if len(s) == 0 || len(s) > 16 {
+		return false
+	}
+	for _, c := range s {
+		if c < '0' || c > '9' {
+			return false
+		}
+	}
+	return true
 }
 
 func parseUID(s string) ([]byte, error) {

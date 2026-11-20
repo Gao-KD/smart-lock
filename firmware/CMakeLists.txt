@@ -2,6 +2,7 @@
 add_library(lock_logic STATIC
     lock/core/lock_core.c
     lock/credential/credential.c
+    lock/credential/offline_pwd.c
     lock/app/lock_app.c
     lock/mac/lock_mac.c
 )
@@ -17,6 +18,7 @@ target_compile_options(lock_logic PRIVATE -Wall -Wextra -Werror)
 
 add_library(lock_hal_host STATIC lock/port/host/hal_host.c)
 target_include_directories(lock_hal_host PUBLIC lock/hal lock/port/host)
+target_link_libraries(lock_hal_host PUBLIC slp slp_crypto_host)
 target_compile_options(lock_hal_host PRIVATE -Wall -Wextra -Werror)
 
 add_executable(lock_host_demo lock/app/main_host.c)

@@ -38,6 +38,16 @@ var demos = []demo{
 	{"status", "状态上报与查询", "心跳上报、主动查询单把锁、全楼巡检", demoStatus},
 	{"low-battery", "低电量告警", "电压降到阈值以下上报告警，刷卡时有低电提示，换电池后恢复", demoLowBattery},
 	{"fault", "电机故障", "电机卡死时门锁进入 FAULT 并把 HW_FAULT 返回给平台", demoFault},
+	{"password", "密码开门：固定 / 虚位 / 一次性 / 周期", "6~10 位密码；前后加任意数字防偷看；访客一次性密码；保洁只在指定星期和时段有效", demoPassword},
+	{"offline-password", "离线密码（门锁和网关都断网也能用）", "平台按门锁密钥算出 10 位密码，不需要下发；一次性、限时、清除码", demoOfflinePassword},
+	{"member", "成员管理：冻结 / 解冻 / 退宿", "一个成员的卡和密码一起冻结（公租房欠费）、解冻；退宿一条指令删光该成员全部凭证", demoMember},
+	{"alarms", "告警：试错冻结 / 胁迫 / 防撬 / 机械钥匙 / 门未关", "连续 5 次错误冻结读卡和键盘；胁迫密码照常开门并静默告警；撬锁、钥匙开门、门未关好都上报", demoAlarms},
+	{"double-lock", "室内反锁与门磁", "反锁后外面刷卡、远程都打不开；门磁检测到关门后立即落锁", demoDoubleLock},
+	{"unlock-request", "访客呼叫与远程开门确认", "关闭远程开门后，平台不能直接开门；访客按呼叫键后，住户/宿管批准这一次请求才开门", demoUnlockRequest},
+	{"config", "整栋楼统一参数配置", "批量下发自动落锁时间等参数到 360 把锁，秒级完成", demoConfig},
+	{"ble-fallback", "手机蓝牙本地开门（网络故障兜底）", "门锁收不到网关时，宿管/学生用平台签发的蓝牙钥匙在门口开门；恢复后记录自动补传", demoBLE},
+	{"offline-records", "断网记录不丢 / 上行确认重发", "离线时刷卡 25 次，锁内队列放不下的记录在重连后由平台补拉；空口丢包 30% 时上行靠 ACK 重发不丢", demoOfflineRecords},
+	{"time-sync", "信标校时", "门锁时钟漂移 5 分钟，下一个网关信标就校正（离线密码、有效期都依赖准确时间）", demoTimeSync},
 }
 
 func main() {
@@ -107,6 +117,12 @@ type simLock struct {
 	IndAgeMs  int  `json:"ind_age_ms"`
 	Channel   int  `json:"channel"`
 	Slot      int  `json:"slot"`
+	Flags     int  `json:"flags"`
+	LogSeq    int  `json:"log_seq"`
+	UpPending int  `json:"up_pending"`
+	ClockOffs int  `json:"clock_offset_s"`
+	AutolockS int  `json:"autolock_s"`
+	Remote    int  `json:"remote_allowed"`
 }
 
 type lockView struct {
@@ -120,6 +136,22 @@ type lockView struct {
 	Cards     int       `json:"cards"`
 	LastSeen  time.Time `json:"last_seen"`
 	Sim       *simLock  `json:"sim"`
+
+	DoorOpen   bool   `json:"door_open"`
+	DoubleLock bool   `json:"double_lock"`
+	LockedOut  bool   `json:"locked_out"`
+	LogSeq     uint32 `json:"log_seq"`
+	Records    int    `json:"records"`
+	Missing    int    `json:"missing"`
+	ReadLogs   int    `json:"read_logs"`
+	Alarms     int    `json:"alarms"`
+	LastAlarm  string `json:"last_alarm"`
+	Request    *struct {
+		ID uint16 `json:"id"`
+	} `json:"request"`
+	AutolockS  int   `json:"autolock_s"`
+	Remote     *bool `json:"remote_allowed"`
+	Reconnects int   `json:"reconnects"`
 }
 
 type record struct {

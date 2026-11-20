@@ -7,12 +7,15 @@
 
 #include "hal_host.h"
 #include "lock_app.h"
+#include "slp/crypto_host.h"
 
 static lock_app_t app;
 
 int main(void)
 {
     hal_host_reset();
+    static const uint8_t demo_key[16] = "host-demo-k_app!"; /* K_app for offline passwords */
+    slp_host_key_set(HAL_HOST_APP_KEY, demo_key);
     lock_app_init(&app);
 
     uint8_t req[64], rsp[64];
@@ -29,7 +32,7 @@ int main(void)
     printf("card access -> result %d, state %s\n", r, lock_state_name(app.core.state));
 
     hal_host_advance(5000);
-    lock_core_tick(&app.core);
+    lock_app_tick(&app);
     printf("after 5 s -> state %s\n", lock_state_name(app.core.state));
     return 0;
 }

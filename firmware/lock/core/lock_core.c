@@ -23,12 +23,17 @@ void lock_core_init(lock_core_t *c, uint16_t default_open_s)
     c->state = LOCK_ST_LOCKED;
     c->relock_at_ms = 0;
     c->default_open_s = default_open_s ? default_open_s : 5;
+    c->double_locked = false;
 }
 
 slp_result_t lock_core_unlock(lock_core_t *c, lock_source_t src, uint16_t duration_s)
 {
     if (c->state == LOCK_ST_EMERGENCY) {
         return SLP_RESULT_OK; /* already held open */
+    }
+    if (c->double_locked) {
+        hal_indicate(HAL_IND_DENIED);
+        return SLP_RESULT_DOUBLE_LOCKED;
     }
     if (c->state == LOCK_ST_LOCKDOWN && is_user_source(src)) {
         hal_indicate(HAL_IND_DENIED);
@@ -78,6 +83,16 @@ slp_result_t lock_core_release(lock_core_t *c)
     c->state = LOCK_ST_LOCKED;
     c->relock_at_ms = 0;
     return SLP_RESULT_OK;
+}
+
+void lock_core_relock_now(lock_core_t *c)
+{
+    if (c->state == LOCK_ST_UNLOCKED && c->relock_at_ms != 0) {
+        c->relock_at_ms = 0;
+        if (drive(c, false)) {
+            c->state = LOCK_ST_LOCKED;
+        }
+    }
 }
 
 void lock_core_tick(lock_core_t *c)

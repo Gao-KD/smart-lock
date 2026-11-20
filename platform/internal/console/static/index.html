@@ -38,6 +38,11 @@ main { display: grid; grid-template-columns: minmax(0, 1fr) 430px; gap: 14px; pa
 .cell .b { position: absolute; right: -2px; top: -2px; width: 8px; height: 8px; border-radius: 50%; background: var(--warn); border: 1px solid var(--panel); }
 .cell .b.crit { background: var(--bad); }
 .cell .c { position: absolute; left: 2px; bottom: 1px; width: 5px; height: 5px; border-radius: 50%; background: #fff; opacity: .8; }
+.cell .d { position: absolute; left: 2px; top: 2px; width: 6px; height: 6px; border-radius: 1px; background: #111827; border: 1px solid #fff; }
+.cell.dooropen { outline: 2px dashed var(--warn); outline-offset: -2px; }
+.cell .r { position: absolute; right: 1px; bottom: 1px; width: 6px; height: 6px; border-radius: 50%; background: #38bdf8; animation: blink 1s infinite; }
+@keyframes blink { 50% { opacity: .2; } }
+input.short { width: 90px !important; }
 .gwsep { height: 6px; }
 .legend { display: flex; flex-wrap: wrap; gap: 12px; font-size: 12px; color: var(--muted); margin-bottom: 8px; }
 .legend i { display: inline-block; width: 12px; height: 12px; border-radius: 3px; vertical-align: -2px; margin-right: 4px; }
@@ -58,6 +63,7 @@ th { color: var(--muted); font-weight: normal; }
 .log div { padding: 1px 0; border-bottom: 1px dotted var(--line); }
 .k-access { color: var(--unlocked); } .k-alarm { color: var(--bad); } .k-security { color: var(--fault); font-weight: 600; }
 .k-cmd { color: var(--accent); } .k-fw { color: var(--muted); } .k-battery { color: var(--warn); }
+.k-door { color: #0e7490; } .k-request { color: #0284c7; font-weight: 600; }
 .bottom { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; padding: 0 16px 16px; }
 @media (max-width: 1100px) { .bottom { grid-template-columns: 1fr; } }
 .progress { height: 10px; border-radius: 5px; background: var(--line); overflow: hidden; margin: 6px 0; }
@@ -89,7 +95,10 @@ svg text { font-family: inherit; }
       <span><i style="background:var(--fault)"></i>故障</span>
       <span><i style="background:repeating-linear-gradient(45deg,var(--offline),var(--offline) 3px,transparent 3px,transparent 6px)"></i>射频离线</span>
       <span><i style="background:var(--warn);border-radius:50%"></i>低电量</span>
-      <span><i style="background:#fff;border:1px solid var(--line);border-radius:50%"></i>已有卡</span>
+      <span><i style="background:#fff;border:1px solid var(--line);border-radius:50%"></i>已有凭证</span>
+      <span><i style="background:#111827;border:1px solid #fff"></i>室内反锁</span>
+      <span><i style="outline:2px dashed var(--warn);outline-offset:-2px;background:var(--locked)"></i>门开着</span>
+      <span><i style="background:#38bdf8;border-radius:50%"></i>访客请求开门</span>
     </div>
     <div class="grid" id="grid"></div>
 
@@ -103,6 +112,8 @@ svg text { font-family: inherit; }
         <button class="primary" onclick="bld('emergency-open')">应急常开（广播）</button>
         <button class="danger" onclick="bld('lockdown')">全楼封锁（广播）</button>
         <button onclick="bld('release')">恢复正常（广播）</button>
+        <button onclick="bld('config',{autolock_s:+val('autolock')||5})">全楼统一自动落锁时间</button>
+        <button class="danger" onclick="bld('clear-creds')">全楼清空凭证（毕业季）</button>
       </div>
       <div id="job" class="muted">尚未执行批量操作</div>
       <div class="progress"><div id="jobbar"></div></div>
@@ -120,6 +131,21 @@ svg text { font-family: inherit; }
         <button class="primary" onclick="sim('swipe',{uid:val('uid')})">刷卡</button>
         <button onclick="sim('swipe',{uid:'DEADBEEF'})">刷一张陌生卡</button>
       </div>
+      <div class="btns">
+        <input type="text" id="digits" class="short" placeholder="键盘输入">
+        <button class="primary" onclick="sim('keypad',{digits:val('digits')})">输入密码 #</button>
+        <button onclick="bleOpen(false)">学生手机蓝牙开门</button>
+        <button onclick="bleOpen(true)">宿管手机蓝牙开门</button>
+      </div>
+      <div class="btns">
+        <button onclick="sim('door',{open:true})">推开门</button>
+        <button onclick="sim('door',{open:false})">关上门</button>
+        <button onclick="sim('dlock',{on:true})">室内反锁</button>
+        <button onclick="sim('dlock',{on:false})">解除反锁</button>
+        <button onclick="sim('doorbell')">访客按呼叫键</button>
+        <button class="danger" onclick="sim('key')">机械钥匙开门</button>
+        <button class="danger" onclick="sim('pry')">撬面板</button>
+      </div>
     </div>
     <div class="grp"><div class="t">平台下发（经 MQTT → 网关 → 433MHz）</div>
       <div class="btns">
@@ -129,6 +155,34 @@ svg text { font-family: inherit; }
         <button onclick="delCard()">删除此卡</button>
         <button onclick="cmd('lockdown')">封锁本门</button>
         <button onclick="cmd('release')">解除</button>
+        <button onclick="cmd('requests/approve')">批准访客开门请求</button>
+      </div>
+    </div>
+    <div class="grp"><div class="t">密码与成员（平台下发）</div>
+      <div class="btns">
+        <input type="text" id="pin" class="short" placeholder="6~10 位密码" value="246810">
+        <button onclick="cmd('passwords',{pin:val('pin'),user_id:+val('user')})">添加密码</button>
+        <button onclick="cmd('passwords',{pin:val('pin'),user_id:9001,uses:1,valid_hours:24})">一次性访客密码</button>
+        <button onclick="cmd('passwords',{pin:val('pin'),user_id:+val('user'),duress:true})">胁迫密码</button>
+      </div>
+      <div class="btns">
+        离线密码
+        <button onclick="ofp('once')">一次性</button>
+        <button onclick="ofp('timed',8)">限时 8 小时</button>
+        <button onclick="ofp('clear')">清除码</button>
+        <span id="ofp" class="muted"></span>
+      </div>
+      <div class="btns">
+        成员 <input type="text" id="user" class="short" value="2024001">
+        <button onclick="cmd('users/'+val('user')+'/freeze',{freeze:true})">冻结</button>
+        <button onclick="cmd('users/'+val('user')+'/freeze',{freeze:false})">解冻</button>
+        <button class="danger" onclick="post(`/api/locks/${sel}/users/${val('user')}`, null, 'DELETE')">退宿（删除成员全部凭证）</button>
+      </div>
+      <div class="btns">
+        参数 自动落锁 <input type="text" id="autolock" class="short" value="5" style="width:50px!important"> 秒
+        <button onclick="cmd('config',{autolock_s:+val('autolock')})">下发</button>
+        <button onclick="cmd('config',{remote_allowed:false})">禁止直接远程开门</button>
+        <button onclick="cmd('config',{remote_allowed:true})">允许远程开门</button>
       </div>
     </div>
     <div class="grp"><div class="t">故障与环境</div>
@@ -141,6 +195,7 @@ svg text { font-family: inherit; }
         <button onclick="sim('rf',{on:true})">恢复在线</button>
         <button onclick="sim('dropack',{n:1})">丢掉下一个 ACK</button>
         <button onclick="sim('jam',{n:2})">电机卡死</button>
+        <button onclick="sim('clock',{delta_s:-300})">时钟慢 5 分钟</button>
       </div>
     </div>
     <div class="grp"><div class="t">攻击者（截获空中最后一帧）</div>
@@ -170,7 +225,7 @@ svg text { font-family: inherit; }
 const $ = id => document.getElementById(id);
 const val = id => $(id).value.trim();
 let S = null, sel = null, lastEv = 0, events = [], filter = 'all', curJob = null;
-const KINDS = {all:'全部', access:'开门', alarm:'告警', security:'安全', cmd:'指令', fw:'固件日志', system:'系统'};
+const KINDS = {all:'全部', access:'开门', alarm:'告警', door:'门磁/反锁', request:'访客请求', security:'安全', cmd:'指令', fw:'固件日志', system:'系统'};
 const STATES = ['LOCKED','UNLOCKED','LOCKDOWN','EMERGENCY','FAULT'];
 const STATE_CN = {LOCKED:'已上锁',UNLOCKED:'已开门',LOCKDOWN:'封锁',EMERGENCY:'应急常开',FAULT:'故障'};
 
@@ -194,7 +249,12 @@ function cardUID(floor, room) { const h = n => n.toString(16).padStart(2,'0').to
 function cmd(path, body) { if (!sel) return; return post(`/api/locks/${sel}/${path}`, body); }
 function sim(path, body) { if (!sel) return; return post(`/api/sim/locks/${sel}/${path}`, body); }
 function delCard() { if (sel) post(`/api/locks/${sel}/cards/${val('uid')}`, null, 'DELETE'); }
-async function bld(action) { const r = await post(`/api/buildings/${S.layout.Building}/${action}`); if (r && r.job) curJob = r.job; }
+async function bld(action, body) { const r = await post(`/api/buildings/${S.layout.Building}/${action}`, body); if (r && r.job) curJob = r.job; }
+async function ofp(kind, hours) { if (!sel) return; const r = await post(`/api/locks/${sel}/offline-password`, {kind, hours});
+  if (r && r.password) { $('ofp').textContent = `${r.password}（${r.desc}）`; $('digits').value = r.password; } }
+async function bleOpen(admin) { if (!sel) return;
+  const k = await post(`/api/locks/${sel}/ble-key`, {user_id: admin ? 1 : +val('user'), hours: 2, admin});
+  if (k && k.token) sim('ble', {token: k.token}); }
 
 function select(room) {
   sel = room;
@@ -213,10 +273,12 @@ function renderGrid() {
     for (let r = 1; r <= L.Rooms; r++) {
       const name = f + String(r).padStart(2, '0'), l = by[name], s = l && l.sim;
       const st = s ? STATES[s.state] : (l.state || 'LOCKED');
-      const cls = ['cell', st, s && !s.rf ? 'rfoff' : '', s && !s.joined ? 'unjoined' : '', sel === name ? 'sel' : ''].join(' ');
+      const fl = s ? s.flags : 0;
+      const cls = ['cell', st, s && !s.rf ? 'rfoff' : '', s && !s.joined ? 'unjoined' : '', sel === name ? 'sel' : '', fl & 1 ? 'dooropen' : ''].join(' ');
       const bl = s ? s.batt_level : l.batt_level;
       html += `<div class="${cls}" title="${name} ${STATE_CN[st]}${s ? ' · ' + s.battery_mv + 'mV · 卡 ' + s.cards : ''}" onclick="select('${name}')">` +
-        (bl ? `<span class="b ${bl > 1 ? 'crit' : ''}"></span>` : '') + (s && s.cards ? '<span class="c"></span>' : '') + '</div>';
+        (bl ? `<span class="b ${bl > 1 ? 'crit' : ''}"></span>` : '') + (s && s.cards ? '<span class="c"></span>' : '') + (fl & 2 ? '<span class="d"></span>' : '') +
+        (l.request && new Date(l.request.until) > Date.now() ? '<span class="r"></span>' : '') + '</div>';
     }
     html += '</div>';
     if ((f - 1) % L.FloorsPerGW === 0 && f > 1) html += '<div class="gwsep"></div>';
@@ -257,8 +319,8 @@ function board(l) {
   </g>
   <g>
     <rect x="20" y="130" width="95" height="44" rx="5" fill="none" stroke="#94a3b8" stroke-dasharray="4 3"/>
-    <text x="67" y="149" text-anchor="middle" font-size="11" fill="${fg}" opacity=".6">密码/指纹/人脸</text>
-    <text x="67" y="164" text-anchor="middle" font-size="9" fill="${fg}" opacity=".6">接口预留</text>
+    <text x="67" y="149" text-anchor="middle" font-size="11" fill="${fg}">密码键盘 · 蓝牙</text>
+    <text x="67" y="164" text-anchor="middle" font-size="9" fill="${fg}" opacity=".6">指纹/人脸接口预留</text>
   </g>
   <g>
     <rect x="285" y="70" width="100" height="44" rx="5" fill="none" stroke="#94a3b8"/>
@@ -298,6 +360,12 @@ function renderSide() {
     ['电池', l.battery_mv ? `${l.battery_mv} mV（平台）` + (['', ' · 低电量', ' · 严重低电'][l.batt_level] || '') : '—'],
     ['已存凭证', `${s.cards ?? '—'} 张（锁内） / ${l.cards} 张（最近上报）`],
     ['最近开门', l.last_access || '—'],
+    ['门 / 反锁', `${s.flags & 1 ? '开着' : '关着'} / ${s.flags & 2 ? '已反锁' : '未反锁'}${s.flags & 4 ? ' · 试错冻结中' : ''}`],
+    ['开门记录', `锁内序号 ${s.log_seq ?? '—'} · 平台收到 ${l.records} 条${l.missing ? ` · 缺 ${l.missing} 条待补传` : ''}${l.read_logs ? ` · 已补传 ${l.read_logs} 次` : ''}`],
+    ['连接', `待上行 ${s.up_pending ?? 0} 条 · 重连 ${l.reconnects} 次 · 时钟偏差 ${s.clock_offset_s ?? 0} 秒`],
+    ['参数', `自动落锁 ${s.autolock_s ?? '—'} 秒 · ${s.remote_allowed ? '允许远程开门' : '远程开门需访客请求'}`],
+    ['告警', l.alarms ? `${l.alarms} 次 · 最近：${l.last_alarm}` : '—'],
+    ['访客请求', l.request && new Date(l.request.until) > Date.now() ? `请求 ${l.request.id}，等待批准` : '—'],
   ].map(([k, v]) => `<b>${k}</b><span>${v}</span>`).join('');
 }
 

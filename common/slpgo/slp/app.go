@@ -7,21 +7,27 @@ import (
 
 // App commands / events (slp/app.h).
 const (
-	CmdUnlock    = 0x01
-	CmdLockdown  = 0x02
-	CmdRelease   = 0x03
-	CmdEmergency = 0x04
-	CmdCredAdd   = 0x10
-	CmdCredDel   = 0x11
-	CmdCredClear = 0x12
-	CmdTimeSync  = 0x31
-	CmdStatus    = 0x50
+	CmdUnlock     = 0x01
+	CmdLockdown   = 0x02
+	CmdRelease    = 0x03
+	CmdEmergency  = 0x04
+	CmdCredAdd    = 0x10
+	CmdCredDel    = 0x11
+	CmdCredClear  = 0x12
+	CmdUserDel    = 0x13
+	CmdUserFreeze = 0x14
+	CmdReadLog    = 0x20
+	CmdConfig     = 0x30
+	CmdTimeSync   = 0x31
+	CmdStatus     = 0x50
 
 	RspResult    = 0x80
 	EvtAccess    = 0x90
 	EvtAlarm     = 0x91
 	EvtBattery   = 0x92
 	EvtHeartbeat = 0x93
+	EvtDoor      = 0x94
+	EvtUnlockReq = 0x95
 )
 
 // TLV types.
@@ -38,9 +44,76 @@ const (
 	TLVLockState = 0x0A
 	TLVCredCount = 0x0B
 	TLVBattLevel = 0x0C
+	TLVUses      = 0x0D
+	TLVSchedule  = 0x0E
+	TLVCredFlags = 0x0F
+	TLVFreeze    = 0x10
+	TLVAlarm     = 0x11
+	TLVLogSeq    = 0x12
+	TLVCount     = 0x13
+	TLVDoor      = 0x14
+	TLVDoubleLck = 0x15
+	TLVReqID     = 0x16
+	TLVHBReason  = 0x17
+	TLVSource    = 0x18
+	TLVReplayed  = 0x19
+	TLVFlags     = 0x1A
+
+	TLVCfgAutolockS  = 0x40
+	TLVCfgVolume     = 0x41
+	TLVCfgRemote     = 0x42
+	TLVCfgWrongLimit = 0x43
+	TLVCfgLockoutS   = 0x44
+	TLVCfgHeartbeatS = 0x45
+	TLVCfgDoorAlarmS = 0x46
 )
 
-const CredCardUID = 1
+// Credential types.
+const (
+	CredCardUID    = 1
+	CredPassword   = 2
+	CredFinger     = 3
+	CredFace       = 4
+	CredBLEToken   = 5
+	CredOfflinePwd = 6
+)
+
+var CredTypeNames = map[uint8]string{CredCardUID: "校园卡", CredPassword: "密码", CredFinger: "指纹",
+	CredFace: "人脸", CredBLEToken: "手机蓝牙", CredOfflinePwd: "离线密码"}
+
+// Credential flags.
+const (
+	CredFDuress = 0x01
+	CredFFrozen = 0x02
+	CredFAdmin  = 0x04
+)
+
+// Lock status flags (TLV FLAGS).
+const (
+	LFDoorOpen   = 0x01
+	LFDoubleLock = 0x02
+	LFLockedOut  = 0x04
+)
+
+// Alarms (TLV ALARM).
+const (
+	AlarmWrongAttempts = 1
+	AlarmTamper        = 2
+	AlarmDuress        = 3
+	AlarmDoorOpen      = 4
+	AlarmMechKey       = 5
+	AlarmHWFault       = 6
+)
+
+var AlarmNames = map[uint8]string{AlarmWrongAttempts: "多次试错，读卡/键盘已临时冻结", AlarmTamper: "防撬告警",
+	AlarmDuress: "胁迫开门（静默告警）", AlarmDoorOpen: "门未关好", AlarmMechKey: "机械钥匙开门", AlarmHWFault: "电机故障"}
+
+// Heartbeat reasons.
+const (
+	HBPeriodic  = 0
+	HBReconnect = 1
+	HBBoot      = 2
+)
 
 // Results.
 const (
@@ -52,11 +125,18 @@ const (
 	ResultFull      = 5
 	ResultHWFault   = 6
 	ResultUnknown   = 7
+	ResultDoubleLck = 8
+	ResultLockedOut = 9
+	ResultFrozen    = 10
+	ResultSchedule  = 11
+	ResultNeedReq   = 12
 )
 
 var ResultNames = map[uint8]string{
 	ResultOK: "OK", ResultExpired: "EXPIRED", ResultDuplicate: "DUPLICATE", ResultDenied: "DENIED",
 	ResultBadParam: "BAD_PARAM", ResultFull: "FULL", ResultHWFault: "HW_FAULT", ResultUnknown: "UNKNOWN",
+	ResultDoubleLck: "DOUBLE_LOCKED", ResultLockedOut: "LOCKED_OUT", ResultFrozen: "FROZEN",
+	ResultSchedule: "OUT_OF_SCHEDULE", ResultNeedReq: "NEED_REQUEST",
 }
 
 // LockStateNames follows lock_state_t.

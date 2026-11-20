@@ -38,6 +38,11 @@ void hal_indicate(hal_indication_t ind);
 /* Battery voltage in millivolts (divider enabled only while sampling). */
 uint16_t hal_battery_mv(void);
 
+/* 8-byte MAC (AES-CCM CBC-MAC) of msg under this lock's K_app, with the
+ * nonce bound to the lock EUI. Used for offline passwords and BLE tokens; the
+ * key never leaves Secure Vault on EFR32. Returns 0 on success. */
+int hal_app_mac(const uint8_t *msg, size_t len, uint8_t out[8]);
+
 /* Key-value persistent storage (NVM3 on EFR32). */
 int hal_nvm_write(uint16_t key, const void *data, size_t len);
 int hal_nvm_read(uint16_t key, void *data, size_t len);
