@@ -92,13 +92,14 @@ func TestExpiredCommandsDropped(t *testing.T) {
 }
 
 func TestEmergencyBroadcastTakesWholePeriod(t *testing.T) {
+	// One wake-up train per channel; nothing else in that period.
 	tb := newTable(t, 3, 100)
 	s := New(tb, Config{})
 	_ = s.Enqueue(&Command{MsgID: 1, LockEUI: 0x1000, Priority: P1Interactive})
 	_ = s.Enqueue(&Command{MsgID: 2, Group: 0xFFFF, Priority: P0Emergency})
 	txs, _ := s.PlanPeriod(time.Now())
-	if len(txs) != 3*50 {
-		t.Fatalf("broadcast cells = %d, want 150", len(txs))
+	if len(txs) != 3 {
+		t.Fatalf("broadcast trains = %d, want one per channel (3)", len(txs))
 	}
 	for _, tx := range txs {
 		if tx.Cmd.MsgID != 2 || tx.Dst != 0xFFFF {
@@ -121,7 +122,7 @@ func TestBackgroundBroadcastWaitsForInteractive(t *testing.T) {
 		t.Fatalf("got %+v, want the unlock first", txs)
 	}
 	txs, _ = s.PlanPeriod(time.Now())
-	if len(txs) != 50 || txs[0].Cmd.MsgID != 1 {
+	if len(txs) != 1 || txs[0].Cmd.MsgID != 1 {
 		t.Fatalf("broadcast should follow, got %d txs", len(txs))
 	}
 }
@@ -194,5 +195,19 @@ func TestTakeUrgentOnlyInteractiveAndFreeCells(t *testing.T) {
 	}
 	if s.Pending() != 4 {
 		t.Fatalf("pending = %d", s.Pending())
+	}
+}
+
+func TestIneligibleLockWaits(t *testing.T) {
+	tb := newTable(t, 1, 10)
+	listening := false
+	s := New(tb, Config{Eligible: func(uint64) bool { return listening }})
+	_ = s.Enqueue(&Command{MsgID: 1, LockEUI: 0x1003, Priority: P1Interactive})
+	if txs, _ := s.PlanPeriod(time.Now()); len(txs) != 0 {
+		t.Fatalf("lock not sniffing this period, got %+v", txs)
+	}
+	listening = true
+	if txs, _ := s.PlanPeriod(time.Now()); len(txs) != 1 {
+		t.Fatalf("want the command once the lock listens, got %+v", txs)
 	}
 }

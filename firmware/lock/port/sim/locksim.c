@@ -15,9 +15,14 @@
  * snapshot of every lock for the web UI.
  *
  * Timing: each PERIOD message is the gateway's plan for one listen period
- * (default 1000 ms). Frames are delivered at slot start (slot * slot_ms
- * after the period start), only to locks whose (channel, slot) matches: a
- * lock is asleep outside its own slot, exactly like on the real radio.
+ * (default 1000 ms). There is no beacon on the air (docs/radio-plan.md):
+ * every entry carries the preamble length the gateway chose. A short
+ * (synchronous) preamble reaches only the lock whose (channel, slot)
+ * matches, that sniffs in this period (fake-wake-up guard) and whose clock
+ * drifted less than half the preamble since its last ACK; each virtual lock
+ * has its own crystal error. A preamble longer than a period is a wake-up
+ * train: every lock on the channel that sniffs hears it, and the frame
+ * follows after the train.
  */
 #define _POSIX_C_SOURCE 200809L
 #include <arpa/inet.h>
@@ -65,6 +70,9 @@ typedef struct {
     lock_state_t   last_state;
     lock_upq_t     upq;          /* reliable uplink: waits for the gateway's ACK */
     uint8_t        up_seq;       /* MAC SEQ of uplink frames */
+    int            drift_ppm;    /* this lock's 32 kHz crystal error */
+    uint32_t       probe_due_ms; /* suspect link: next probe heartbeat */
+    uint32_t       wakes;        /* preambles heard (incl. false ones) */
 } vlock_t;
 
 typedef struct {
@@ -78,6 +86,7 @@ typedef struct {
     int                period_ms, slot_ms;
     int                first, count;
     uint32_t           periods;
+    uint32_t           period_no;      /* gateway period number */
     uint32_t           period_start_ms;
 } gwctx_t;
 
@@ -85,6 +94,8 @@ typedef struct {
     uint32_t due_ms;
     int      gw;
     uint8_t  ch, slot;
+    uint16_t pre_ms;   /* preamble length; > period = wake-up train */
+    uint32_t period;   /* gateway period number of the transmission */
     uint32_t ref;
     uint8_t  len;
     uint8_t  frame[SLP_MAX_FRAME_LEN];
@@ -224,6 +235,8 @@ static void upq_service(vlock_t *lk)
     uint32_t t = now_ms();
     if (lock_upq_check_timeout(&lk->upq, t)) {
         vlog(lk, "上行消息重发 %u 次仍无 ACK，放弃 (事件仍在记录日志里，平台可补拉)", LOCK_UPQ_TRIES);
+        lock_mac_uplink_failed(&lk->mac, t);
+        lk->probe_due_ms = t + lock_mac_probe_delay(&lk->mac, (uint32_t)rand());
     }
     if (!lk->joined || !lk->rf_on || !gws[lk->gw].have_peer) {
         return;
@@ -232,6 +245,7 @@ static void upq_service(vlock_t *lk)
     if (it) {
         if (lk->upq.tries > 0) {
             vlog(lk, "上行未收到网关 ACK，第 %u 次重发", lk->upq.tries);
+            lock_mac_uplink_failed(&lk->mac, t);
         }
         lock_transmit(lk, it->msg, it->len);
     }
@@ -282,6 +296,57 @@ static void send_join_req(vlock_t *lk)
     }
 }
 
+/* Secured MAC command to the gateway (fire and forget). */
+static void send_mac_cmd(vlock_t *lk, const uint8_t *pl, size_t plen)
+{
+    int i = (int)(lk - locks);
+    uint32_t fc, pv;
+    bool np;
+    if (slp_txctr_take(&lk->txc, &fc, &np, &pv) != SLP_OK) {
+        return;
+    }
+    uint8_t buf[16];
+    memcpy(buf, pl, plen);
+    slp_frame_t f = {
+        .type = SLP_FT_MAC_CMD, .security = true, .seq = ++lk->up_seq, .pan_id = lk->mac.pan_id,
+        .dst_mode = SLP_ADDR_SHORT, .dst = 0x0000, .src_mode = SLP_ADDR_SHORT,
+        .src = lk->mac.short_addr, .frame_counter = fc, .key_id = SLP_KEY_LINK,
+        .payload = buf, .payload_len = plen,
+    };
+    uint8_t frame[SLP_MAX_FRAME_LEN];
+    size_t flen;
+    if (slp_frame_encode_secure(H_LINK(i), lk->eui, &f, frame, sizeof(frame), &flen) == SLP_OK) {
+        send_rx(&gws[lk->gw], lk->mac.channel, lock_rssi(lk), frame, flen);
+    }
+}
+
+/* The fake-wake-up guard changed how often this lock sniffs. */
+static void announce_sniff_div(vlock_t *lk, bool attack)
+{
+    uint8_t pl[2] = { LOCK_MAC_CMD_SNIFF_DIV, lk->mac.sniff_div };
+    if (attack) {
+        vlog(lk, "连续收到无效前导码 (疑似耗电攻击)，侦听降为每 %u 个周期一次，并通知网关、上报告警",
+             lk->mac.sniff_div);
+        lock_app_rf_jam(&lk->app);
+        flush_events(lk);
+    } else {
+        vlog(lk, "已 %u 分钟没有无效唤醒，侦听恢复为每 %u 个周期一次", LOCK_MAC_DRAIN_QUIET_MS / 60000u,
+             lk->mac.sniff_div);
+    }
+    if (lk->joined && lk->rf_on) {
+        send_mac_cmd(lk, pl, sizeof(pl));
+    }
+}
+
+static void false_wake(vlock_t *lk, const char *why)
+{
+    lk->wakes++;
+    if (lock_mac_on_false_wake(&lk->mac, now_ms())) {
+        (void)why;
+        announce_sniff_div(lk, true);
+    }
+}
+
 /* ---- downlink processing in one lock ---- */
 static void on_join_accept(vlock_t *lk, const slp_frame_t *f)
 {
@@ -294,12 +359,14 @@ static void on_join_accept(vlock_t *lk, const slp_frame_t *f)
     uint16_t slot = slp_le16(p + 3);
     uint16_t period = slp_le16(p + 5);
     uint16_t slot_ms = slp_le16(p + 7);
+    uint16_t phase = f->payload_len >= 16 ? slp_le16(p + 9) : 0;
+    uint32_t pno = f->payload_len >= 16 ? slp_le32(p + 11) : 0;
     lock_mac_init(&lk->mac, f->pan_id, short_addr, ch, slot, period, slot_ms);
     lk->mac.groups[0] = SLP_SHORT_BROADCAST;
     lk->mac.group_count = 1;
     lk->joined = true;
     lock_upq_init(&lk->upq);
-    lock_mac_on_beacon(&lk->mac, now_ms(), 0);
+    lock_mac_on_join_accept(&lk->mac, now_ms(), phase, pno);
     lk->hb_due_ms = now_ms() + (uint32_t)(rand() % (hb_s * 1000));
     vlog(lk, "入网成功: 短地址 0x%04x, 信道 %u, 时隙 %u (每 %u ms 侦听一次)", short_addr, ch,
          slot, period);
@@ -316,6 +383,7 @@ static bool lock_rx(vlock_t *lk, const uint8_t *in, size_t len, bool attacker)
     int rc = slp_frame_decode(buf, len, &f);
     if (rc != SLP_OK) {
         if (attacker) vlog(lk, "收到损坏的帧 (CRC 错误)，丢弃");
+        false_wake(lk, "crc");
         return false;
     }
     if (f.type == SLP_FT_MAC_CMD && f.dst_mode == SLP_ADDR_LONG && f.dst == lk->eui) {
@@ -323,12 +391,47 @@ static bool lock_rx(vlock_t *lk, const uint8_t *in, size_t len, bool attacker)
         return false;
     }
     if (f.type == SLP_FT_ACK) {
-        if (lk->joined && f.dst_mode == SLP_ADDR_SHORT && (uint16_t)f.dst == lk->mac.short_addr &&
-            f.pan_id == lk->mac.pan_id && lock_upq_on_ack(&lk->upq, f.seq)) {
+        if (!lk->joined || f.dst_mode != SLP_ADDR_SHORT || (uint16_t)f.dst != lk->mac.short_addr ||
+            f.pan_id != lk->mac.pan_id) {
+            return false;
+        }
+        /* ACKs are authenticated (K_link): they carry the slot phase, the
+         * period number and the time, which replace the old beacon. */
+        if (!f.security || slp_frame_open_secure(H_LINK(i), g->eui, buf, &f) != SLP_OK ||
+            f.payload_len < LOCK_MAC_ACK_PAYLOAD_LEN || lock_mac_replay_check(&lk->mac, &f) != SLP_OK) {
+            vlog(lk, "ACK 认证失败 (伪造或重放)，忽略");
+            false_wake(lk, "ack");
+            return false;
+        }
+        uint32_t t = now_ms();
+        bool back = lock_mac_on_ack(&lk->mac, t, slp_le16(f.payload), slp_le32(f.payload + 2));
+        uint32_t unix_s = slp_le32(f.payload + 6);
+        hal_sim_cur = &lk->hw;
+        int32_t d = lock_app_time_sync(&lk->app, unix_s);
+        if (d) vlog(lk, "ACK 校时: 门锁时钟偏差 %d 秒，已按网关时间校正", (int)d);
+        bool acked = lock_upq_on_ack(&lk->upq, f.seq);
+        if (back) {
+            vlog(lk, "上行重新收到网关 ACK (连接恢复)，上报重连心跳并补发未送达的消息");
+            send_heartbeat(lk, SLP_HB_RECONNECT);
+        } else if (acked) {
             flush_events(lk);
             upq_service(lk); /* next queued uplink right away */
         }
         return false;
+    }
+    if (f.type == SLP_FT_MAC_CMD && f.security && lk->joined && f.dst_mode == SLP_ADDR_SHORT &&
+        (uint16_t)f.dst == lk->mac.short_addr && f.pan_id == lk->mac.pan_id) {
+        if (slp_frame_open_secure(H_LINK(i), g->eui, buf, &f) != SLP_OK ||
+            lock_mac_replay_check(&lk->mac, &f) != SLP_OK || f.payload_len < 1) {
+            false_wake(lk, "mac");
+            return false;
+        }
+        if (f.payload[0] == LOCK_MAC_CMD_PROBE) {
+            vlog(lk, "收到网关探测 (网关之前联系不上这把锁)，回复重连心跳");
+            lock_mac_uplink_failed(&lk->mac, now_ms()); /* the ACK to it then counts as "back" */
+            send_heartbeat(lk, SLP_HB_RECONNECT);
+        }
+        return f.ack_request;
     }
     if (f.type != SLP_FT_DATA || !lk->joined || !lock_mac_addressed_to_me(&lk->mac, &f)) {
         return false;
@@ -340,12 +443,16 @@ static bool lock_rx(vlock_t *lk, const uint8_t *in, size_t len, bool attacker)
     }
     if (slp_frame_open_secure(uni ? H_LINK(i) : H_GRP_LINK(lk->gw), g->eui, buf, &f) != SLP_OK) {
         vlog(lk, "链路层 MIC 校验失败: 帧被篡改或伪造，丢弃 (fc=%u)", f.frame_counter);
+        false_wake(lk, "mic");
         return false;
     }
     slp_replay_t *rp = uni ? &lk->mac.gw_replay : &lk->mac.grp_replay;
     uint32_t last = rp->last;
     if (lock_mac_replay_check(&lk->mac, &f) != SLP_OK) {
-        vlog(lk, "防重放: 帧计数器 %u <= 已接收的 %u，判定为重放攻击，丢弃", f.frame_counter, last);
+        if (attacker || f.frame_counter != last) {
+            vlog(lk, "防重放: 帧计数器 %u <= 已接收的 %u，判定为重放攻击，丢弃", f.frame_counter, last);
+            false_wake(lk, "replay");
+        } /* else: the same broadcast heard again in a repeated train */
         return false;
     }
     bool ack = uni && f.ack_request;
@@ -399,6 +506,26 @@ static void send_txres(gwctx_t *g, uint32_t ref, bool acked, int8_t rssi)
     }
 }
 
+/* Whether a lock's once-per-period sniff catches this transmission. */
+static bool hears(const vlock_t *lk, const pending_tx_t *t, const gwctx_t *g)
+{
+    if (!lk->rf_on || !lk->joined || lk->mac.channel != t->ch) {
+        return false;
+    }
+    if (t->pre_ms >= g->period_ms) {
+        /* wake-up train: spans this period's and the next one's sniff */
+        return lock_mac_sniff_period(&lk->mac, t->period) || lock_mac_sniff_period(&lk->mac, t->period + 1u);
+    }
+    if (lk->mac.my_slot != t->slot || lk->mac.sync != LOCK_MAC_SYNCED ||
+        !lock_mac_sniff_period(&lk->mac, t->period)) {
+        return false; /* asleep in this slot / period */
+    }
+    /* clock error accumulated since the last ACK must stay inside the preamble */
+    uint32_t since = now_ms() - lk->mac.last_sync_ms;
+    uint32_t err = (uint32_t)(((uint64_t)since * (uint64_t)abs(lk->drift_ppm)) / 1000000u);
+    return 2u * err + SLP_SNIFF_MS <= t->pre_ms;
+}
+
 static void deliver_slot(pending_tx_t *t)
 {
     gwctx_t *g = &gws[t->gw];
@@ -406,9 +533,10 @@ static void deliver_slot(pending_tx_t *t)
     int8_t rssi = 0;
     for (int k = g->first; k < g->first + g->count; k++) {
         vlock_t *lk = &locks[k];
-        if (!lk->rf_on || !lk->joined || lk->mac.channel != t->ch || lk->mac.my_slot != t->slot) {
-            continue; /* asleep or on another channel: does not hear it */
+        if (!hears(lk, t, g)) {
+            continue; /* asleep, on another channel or missed the preamble */
         }
+        lk->wakes++;
         if (chance(loss_pct)) {
             continue;
         }
@@ -462,32 +590,11 @@ static void on_period(int gi, const uint8_t *m, size_t n)
     uint32_t start = now_ms();
     if (n < 6) return;
     size_t p = 5;
-    uint8_t blen = m[p++];
+    uint8_t blen = m[p++]; /* legacy beacon field: always empty now, nothing goes on the air */
     if (p + blen + 2 > n) return;
-    slp_frame_t bf;
-    uint8_t bbuf[SLP_MAX_FRAME_LEN];
-    memcpy(bbuf, m + p, blen);
-    if (blen && slp_frame_decode(bbuf, blen, &bf) == SLP_OK && bf.type == SLP_FT_BEACON) {
-        uint32_t unix_s = bf.payload_len >= 8 ? slp_le32(bf.payload + 4) : 0;
-        for (int k = g->first; k < g->first + g->count; k++) {
-            vlock_t *lk = &locks[k];
-            if (!lk->rf_on || !lk->joined || chance(loss_pct)) {
-                continue;
-            }
-            hal_sim_cur = &lk->hw;
-            bool back = lock_mac_on_beacon(&lk->mac, start, 0);
-            if (unix_s) {
-                int32_t d = lock_app_time_sync(&lk->app, unix_s);
-                if (d) vlog(lk, "信标校时: 门锁时钟偏差 %d 秒，已按网关时间校正", (int)d);
-            }
-            if (back) {
-                vlog(lk, "重新收到网关信标 (连接恢复)，上报重连心跳并补发未送达的消息");
-                send_heartbeat(lk, SLP_HB_RECONNECT);
-            }
-        }
-    }
     p += blen;
     g->periods++;
+    g->period_no = slp_le32(m + 1);
     g->period_start_ms = start;
     queue_entries(gi, m, n, p, start);
 }
@@ -508,18 +615,23 @@ static void queue_entries(int gi, const uint8_t *m, size_t n, size_t p, uint32_t
     uint16_t cnt = slp_le16(m + p);
     p += 2;
     for (uint16_t i = 0; i < cnt; i++) {
-        if (p + 7 > n || npend >= MAX_PENDING) break;
+        if (p + 9 > n || npend >= MAX_PENDING) break;
         pending_tx_t *t = &pend[npend];
         t->gw = gi;
         t->ch = m[p];
         t->slot = m[p + 1];
-        t->ref = (uint32_t)m[p + 2] | (uint32_t)m[p + 3] << 8 | (uint32_t)m[p + 4] << 16 | (uint32_t)m[p + 5] << 24;
-        t->len = m[p + 6];
-        p += 7;
+        t->pre_ms = slp_le16(m + p + 2);
+        t->ref = slp_le32(m + p + 4);
+        t->len = m[p + 8];
+        p += 9;
         if (p + t->len > n) break;
         memcpy(t->frame, m + p, t->len);
         p += t->len;
+        t->period = g->period_no;
         t->due_ms = start + (uint32_t)t->slot * (uint32_t)g->slot_ms;
+        if (t->pre_ms >= g->period_ms) {
+            t->due_ms += t->pre_ms; /* the frame follows the wake-up train */
+        }
         npend++;
     }
 }
@@ -591,13 +703,14 @@ static size_t snapshot(char *out, size_t cap)
     for (int k = 0; k < nlocks && n + 160 < cap; k++) {
         vlock_t *lk = &locks[k];
         uint32_t age = lk->hw.ind_calls ? t - lk->hw.last_ind_ms : 999999;
-        n += (size_t)snprintf(out + n, cap - n, "%016llx %d %u %d %d %u %u %d %d %u %d %d %u %u %u %u %d %u %u\n",
+        n += (size_t)snprintf(out + n, cap - n, "%016llx %d %u %d %d %u %u %d %d %u %d %d %u %u %u %u %d %u %u %u %u\n",
                               (unsigned long long)lk->eui, (int)lk->app.core.state, lk->hw.battery_mv,
                               lk->rf_on, lk->joined, lk->app.creds.count, lk->app.batt_level,
                               lk->hw.clutch_engaged, (int)lk->hw.last_ind, age, lk->mac.channel,
                               lk->mac.my_slot, lk->mac.short_addr, lock_app_flags(&lk->app),
                               lk->app.log_seq, (unsigned)lk->upq.count + lk->app.evq_count,
-                              (int)lk->hw.unix_offset, lk->app.cfg.autolock_s, lk->app.cfg.remote_allowed);
+                              (int)lk->hw.unix_offset, lk->app.cfg.autolock_s, lk->app.cfg.remote_allowed,
+                              lk->mac.sniff_div, lk->wakes);
     }
     return n;
 }
@@ -655,10 +768,10 @@ static void on_ctrl(char *line, const struct sockaddr_in *from)
         n = snprintf(out, sizeof(out), "OK %d", lv);
     } else if (!strcmp(cmd, "rf")) {
         lk->rf_on = strcmp(a2, "off") != 0;
-        /* Back in range: the lock re-syncs on the next beacon and, if it
-         * was gone for more than LOCK_MAC_LOST_MS, announces itself with a
-         * RECONNECT heartbeat (see on_period). */
-        vlog(lk, lk->rf_on ? "射频恢复，等待下一个网关信标" : "射频被遮挡 (锁离线，收不到任何指令，事件暂存在锁里)");
+        /* Back in range: the next uplink (retry, probe heartbeat) or the
+         * gateway's probe gets through; the first ACK after a failure makes
+         * the lock send a RECONNECT heartbeat. */
+        vlog(lk, lk->rf_on ? "射频恢复 (下一次上行重发或网关探测时恢复连接)" : "射频被遮挡 (锁离线，收不到任何指令，事件暂存在锁里)");
         n = snprintf(out, sizeof(out), "OK %d", lk->rf_on);
     } else if (!strcmp(cmd, "keypad")) {
         uint8_t d[CRED_KEYPAD_MAX];
@@ -708,6 +821,13 @@ static void on_ctrl(char *line, const struct sockaddr_in *from)
         vlog(lk, "访客按下呼叫键，发出开门请求 %u (%u 秒内有效)", id, LOCK_REQ_WINDOW_S);
         flush_events(lk);
         n = snprintf(out, sizeof(out), "OK %u", id);
+    } else if (!strcmp(cmd, "wakejam")) {
+        int cnt = atoi(a2);
+        vlog(lk, "攻击者: 对这把锁连续发送 %d 个伪造前导码 (想让它一直开着接收机耗电)", cnt);
+        for (int j = 0; j < cnt; j++) {
+            false_wake(lk, "jam");
+        }
+        n = snprintf(out, sizeof(out), "OK %u", lk->mac.sniff_div);
     } else if (!strcmp(cmd, "clock")) {
         lk->hw.unix_offset += atoi(a2);
         vlog(lk, "(模拟) 门锁时钟漂移 %+d 秒", atoi(a2));
@@ -773,9 +893,15 @@ static void tick(void)
         if (lk->joined && (int32_t)(t - lk->hb_due_ms) >= 0) {
             send_heartbeat(lk, SLP_HB_PERIODIC);
         }
-        lock_mac_check_sync(&lk->mac, t);
+        if (lk->joined && lk->mac.suspect && lk->upq.count == 0 && (int32_t)(t - lk->probe_due_ms) >= 0) {
+            send_heartbeat(lk, SLP_HB_RECONNECT); /* probe: its ACK ends the connection loss */
+            lk->probe_due_ms = t + lock_mac_probe_delay(&lk->mac, (uint32_t)rand());
+        }
+        if (lock_mac_check_sync(&lk->mac, t)) {
+            announce_sniff_div(lk, false);
+        }
         if (lk->joined && lock_mac_need_rejoin(&lk->mac, t)) {
-            vlog(lk, "长时间收不到网关信标，重新入网");
+            vlog(lk, "长时间收不到网关 ACK，重新入网");
             lk->joined = false;
             lk->join_due_ms = t + lock_mac_join_backoff(&lk->mac, (uint32_t)rand());
         }
@@ -857,6 +983,7 @@ int main(int argc, char **argv)
             lk->room = r;
             lk->gw = (f - 1) / floors_per_gw;
             lk->rf_on = true;
+            lk->drift_ppm = rand() % 41 - 20; /* +-20 ppm crystal */
             lk->hw.battery_mv = (uint16_t)(5600 + rand() % 400);
             hal_sim_cur = &lk->hw;
             lk->hw.eui = lk->eui;

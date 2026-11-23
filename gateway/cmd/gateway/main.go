@@ -45,6 +45,7 @@ func main() {
 	broker := flag.String("mqtt", "tcp://127.0.0.1:1883", "MQTT broker URL")
 	rcpAddr := flag.String("rcp", "127.0.0.1:9100", "simulator: locksim UDP address of this gateway's radios")
 	maxAttempts := flag.Int("max-attempts", 5, "transmissions per unicast command before giving up")
+	lockOffline := flag.Duration("lock-offline-after", 95*time.Minute, "a lock not heard for this long counts as offline (3 heartbeats + margin)")
 	flag.Parse()
 
 	if *dry {
@@ -62,9 +63,9 @@ func main() {
 	rt := runtime.New(runtime.Config{
 		Tenant: *tenant, ID: id, EUI: eui, PAN: simnet.PAN(*building, *index),
 		Channels: *channels, Slots: *slots, PeriodMs: *periodMs, SlotMs: *periodMs / *slots,
-		MaxAttempts: *maxAttempts,
-		LinkKey:     func(e uint64) []byte { return simnet.Key(simnet.TagLink, e) },
-		GrpKey:      simnet.Key(simnet.TagGrpLink, eui),
+		MaxAttempts: *maxAttempts, LockOfflineAfter: *lockOffline,
+		LinkKey: func(e uint64) []byte { return simnet.Key(simnet.TagLink, e) },
+		GrpKey:  simnet.Key(simnet.TagGrpLink, eui),
 	}, radio, pub)
 
 	lwt, _ := json.Marshal(runtime.Status{Gateway: id, Online: false})

@@ -108,7 +108,8 @@ typedef enum {
     SLP_ALARM_DURESS         = 3, /* duress credential used */
     SLP_ALARM_DOOR_OPEN      = 4, /* door left open */
     SLP_ALARM_MECH_KEY       = 5, /* opened with the mechanical override key */
-    SLP_ALARM_HW_FAULT       = 6  /* clutch motor stalled */
+    SLP_ALARM_HW_FAULT       = 6, /* clutch motor stalled */
+    SLP_ALARM_RF_JAM         = 7  /* repeated fake wake-up preambles: sniff rate reduced */
 } slp_alarm_t;
 
 typedef enum {

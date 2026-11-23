@@ -51,7 +51,7 @@ pids+=($!)
 sleep 1
 
 for i in $(seq 1 "$GATEWAYS"); do
-  .sim/bin/gateway -building "$BUILDING" -index "$i" -mqtt "tcp://127.0.0.1:$MQTT_PORT" \
+  .sim/bin/gateway -lock-offline-after 100s -building "$BUILDING" -index "$i" -mqtt "tcp://127.0.0.1:$MQTT_PORT" \
     -rcp "127.0.0.1:$(( RCP_PORT + i - 1 ))" > ".sim/logs/gateway-$i.log" 2>&1 &
   pids+=($!)
 done

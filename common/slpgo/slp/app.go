@@ -103,10 +103,11 @@ const (
 	AlarmDoorOpen      = 4
 	AlarmMechKey       = 5
 	AlarmHWFault       = 6
+	AlarmRFJam         = 7
 )
 
 var AlarmNames = map[uint8]string{AlarmWrongAttempts: "多次试错，读卡/键盘已临时冻结", AlarmTamper: "防撬告警",
-	AlarmDuress: "胁迫开门（静默告警）", AlarmDoorOpen: "门未关好", AlarmMechKey: "机械钥匙开门", AlarmHWFault: "电机故障"}
+	AlarmDuress: "胁迫开门（静默告警）", AlarmDoorOpen: "门未关好", AlarmMechKey: "机械钥匙开门", AlarmHWFault: "电机故障", AlarmRFJam: "无线耗电攻击（侦听已降频）"}
 
 // Heartbeat reasons.
 const (

@@ -1,7 +1,15 @@
 // Package runtime is the gateway engine: it joins locks, runs one listen
-// period at a time (beacon + scheduled frames on every data channel),
-// applies the link-layer security (K_link / K_grp, anti-replay) and bridges
-// command batches and lock uplinks to the platform.
+// period at a time (scheduled frames on every data channel), applies the
+// link-layer security (K_link / K_grp, anti-replay) and bridges command
+// batches and lock uplinks to the platform.
+//
+// Synchronous wake-up (docs/radio-plan.md): the gateway sends no beacon and
+// transmits only when it has data. Each lock's slot phase is refreshed by
+// the authenticated ACK the gateway sends for every uplink; a downlink then
+// gets a preamble long enough to cover the clock drift since that ACK.
+// Locks whose phase is too old get a wake-up train instead, and so do
+// broadcasts. Locks whose commands failed are probed with backoff until
+// they answer.
 //
 // The app payloads stay end-to-end sealed: the gateway reads only the clear
 // header byte that says whether an uplink is a result or an event.
@@ -46,6 +54,9 @@ type Config struct {
 	PeriodMs    int
 	SlotMs      int
 	MaxAttempts int
+	// LockOfflineAfter: a lock not heard for this long counts as offline in
+	// the gateway status (default 95 min = 3 heartbeats of 30 min + margin).
+	LockOfflineAfter time.Duration
 	// LinkKey returns K_link for a lock (from the platform's KMS in
 	// production, derived locally in the simulator).
 	LinkKey func(eui uint64) []byte
@@ -122,11 +133,25 @@ type lockState struct {
 	rxValid  bool
 	rxLast   uint32
 	lastSeen time.Time
+	lastSync time.Time // last ACK / Join-Accept sent: the lock's phase reference
+	div      uint8     // lock sniffs every div-th period (fake-wake-up guard)
+	// suspect: a command got no ACK after all retries; probe with backoff
+	suspect      bool
+	probeAt      time.Time
+	probeBackoff time.Duration
+	probing      bool
 }
 
+const (
+	probeMin = 5 * time.Second
+	probeMax = 5 * time.Minute
+)
+
 type inflight struct {
-	cmd   *scheduler.Command
-	group bool
+	cmd      *scheduler.Command
+	group    bool
+	probe    *lockState
+	deadline uint32 // period by whose end the TX result must have arrived
 }
 
 type Runtime struct {
@@ -136,34 +161,63 @@ type Runtime struct {
 	table *locktable.Table
 	sched *scheduler.Scheduler
 
-	mu       sync.Mutex
-	byShort  map[uint16]*lockState
-	inflight map[uint32]*inflight
-	ref      uint32
-	fc       uint32
-	seq      uint8
-	period   uint32
-	session  uint32
+	mu         sync.Mutex
+	stMu       sync.Mutex // guards planPeriod and lockState.div for the scheduler callback
+	planPeriod uint32
+	byEUI      map[uint64]*lockState
+	byShort    map[uint16]*lockState
+	inflight   map[uint32]*inflight
+	ref        uint32
+	fc         uint32
+	seq        uint8
+	period     uint32
+	session    uint32
 	// current period, for mid-period insertion of urgent commands
 	periodStart time.Time
 	usedCells   map[locktable.Cell]bool
+	trainCh     map[int]bool // channels busy with a wake-up train this period
 }
 
 func New(cfg Config, radio Radio, pub Publisher) *Runtime {
+	if cfg.LockOfflineAfter <= 0 {
+		cfg.LockOfflineAfter = 95 * time.Minute
+	}
 	tb := locktable.New(cfg.Channels, cfg.Slots)
-	return &Runtime{
+	r := &Runtime{
 		cfg:      cfg,
 		radio:    radio,
 		pub:      pub,
 		table:    tb,
-		sched:    scheduler.New(tb, scheduler.Config{MaxAttempts: cfg.MaxAttempts}),
 		byShort:  make(map[uint16]*lockState),
+		byEUI:    make(map[uint64]*lockState),
 		inflight: make(map[uint32]*inflight),
 		// Never reuse a frame counter across restarts (a real gateway
 		// persists counter blocks like slp_txctr).
 		fc:      uint32(time.Now().Unix()-1_700_000_000) * 64,
 		session: uint32(time.Now().UnixNano()),
 	}
+	r.sched = scheduler.New(tb, scheduler.Config{MaxAttempts: cfg.MaxAttempts, Eligible: r.eligible})
+	return r
+}
+
+// eligible: the lock sniffs in the period being planned (called by the
+// scheduler with r.mu not held).
+func (r *Runtime) eligible(eui uint64) bool {
+	r.stMu.Lock()
+	defer r.stMu.Unlock()
+	st := r.byEUI[eui]
+	return st == nil || st.div <= 1 || r.planPeriod%uint32(st.div) == 0
+}
+
+// preamble picks the preamble for a unicast to st: synchronous (covering
+// the drift since the last ACK) or a wake-up train.
+func (r *Runtime) preamble(st *lockState, now time.Time) (preMs int, train bool) {
+	if !st.lastSync.IsZero() {
+		if p := simnet.SyncPreambleMs(now.Sub(st.lastSync).Milliseconds()); p > 0 {
+			return p, false
+		}
+	}
+	return r.cfg.PeriodMs + simnet.WakeTrainExtraMs, true
 }
 
 func nowMs() int64 { return time.Now().UnixMilli() }
@@ -227,7 +281,7 @@ func (r *Runtime) lateInsert() {
 	elapsed := time.Since(r.periodStart)
 	txs := r.sched.TakeUrgent(time.Now(), func(c locktable.Cell) bool {
 		start := time.Duration(c.Slot*r.cfg.SlotMs) * time.Millisecond
-		if start < elapsed+guard || r.usedCells[c] {
+		if start < elapsed+guard || r.usedCells[c] || r.trainCh[c.Channel] {
 			return false
 		}
 		r.usedCells[c] = true
@@ -237,10 +291,16 @@ func (r *Runtime) lateInsert() {
 		return
 	}
 	var entries []simnet.TxEntry
+	now := time.Now()
 	for _, tx := range txs {
 		l, err := r.table.Get(tx.Cmd.LockEUI)
 		st := r.byShort[l.Short]
 		if err != nil || st == nil {
+			continue
+		}
+		pre, train := r.preamble(st, now)
+		if train || r.trainCh[tx.Cell.Channel] {
+			r.sched.Requeue(tx.Cmd) // needs a whole period: next plan
 			continue
 		}
 		frame, err := r.frame(tx.Dst, tx.Cmd.Payload, st.key, slp.KeyLink, true)
@@ -248,10 +308,12 @@ func (r *Runtime) lateInsert() {
 			continue
 		}
 		r.ref++
-		r.inflight[r.ref] = &inflight{cmd: tx.Cmd}
-		entries = append(entries, simnet.TxEntry{Channel: tx.Cell.Channel, Slot: tx.Cell.Slot, Ref: r.ref, Frame: frame})
+		r.inflight[r.ref] = &inflight{cmd: tx.Cmd, deadline: r.period}
+		entries = append(entries, simnet.TxEntry{Channel: tx.Cell.Channel, Slot: tx.Cell.Slot, PreMs: pre, Ref: r.ref, Frame: frame})
 	}
-	_ = r.radio.Send(simnet.EncodePeriodAdd(r.period, entries))
+	if len(entries) > 0 {
+		_ = r.radio.Send(simnet.EncodePeriodAdd(r.period, entries))
+	}
 }
 
 func (r *Runtime) nextFC() uint32 {
@@ -261,19 +323,26 @@ func (r *Runtime) nextFC() uint32 {
 
 func (r *Runtime) runPeriod(now time.Time) {
 	r.mu.Lock()
-	// Frames of the previous period that got no TX result: no ACK.
-	var timedOut []*scheduler.Command
+	next := r.period + 1
+	// Frames whose TX result is overdue: no ACK. Wake-up trains end in the
+	// following period, so their deadline is one period later.
+	var timedOut []*inflight
 	for ref, inf := range r.inflight {
-		if !inf.group {
-			timedOut = append(timedOut, inf.cmd)
+		if inf.deadline < next {
+			if !inf.group {
+				timedOut = append(timedOut, inf)
+			}
+			delete(r.inflight, ref)
 		}
-		delete(r.inflight, ref)
 	}
 	r.mu.Unlock()
-	for _, c := range timedOut {
-		r.outcome(c, false)
+	for _, inf := range timedOut {
+		r.txOutcome(inf, false)
 	}
 
+	r.stMu.Lock()
+	r.planPeriod = next
+	r.stMu.Unlock()
 	txs, expired := r.sched.PlanPeriod(now)
 	for _, c := range expired {
 		r.pub.Publish(topics.UpAck, Ack{MsgID: c.MsgID, State: "expired", LockEUI: HexEUI(c.LockEUI), AtMs: nowMs()}, false)
@@ -281,20 +350,20 @@ func (r *Runtime) runPeriod(now time.Time) {
 
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.period++
+	r.period = next
 	r.periodStart = now
 	r.usedCells = make(map[locktable.Cell]bool)
-	beacon := &slp.Frame{Type: slp.FTBeacon, PAN: r.cfg.PAN, DstMode: slp.AddrShort, Dst: slp.ShortBroadcast,
-		SrcMode: slp.AddrShort, Src: slp.ShortGateway,
-		Payload: binary.LittleEndian.AppendUint32(binary.LittleEndian.AppendUint32(nil, r.period), uint32(now.Unix()))}
-	bf, _ := beacon.Encode()
+	r.trainCh = make(map[int]bool)
+	busyCh := make(map[int]bool) // channels with synchronous frames
 
 	var entries []simnet.TxEntry
 	groupFrames := map[*scheduler.Command][]byte{}
 	groupCells := map[*scheduler.Command]int{}
+	train := r.cfg.PeriodMs + simnet.WakeTrainExtraMs
 	for _, tx := range txs {
 		var frame []byte
 		var err error
+		pre := 0
 		if tx.Cmd.IsGroup() {
 			if f, ok := groupFrames[tx.Cmd]; ok {
 				frame = f
@@ -303,10 +372,18 @@ func (r *Runtime) runPeriod(now time.Time) {
 				groupFrames[tx.Cmd] = frame
 			}
 			groupCells[tx.Cmd]++
+			pre = train
 		} else {
 			l, gerr := r.table.Get(tx.Cmd.LockEUI)
 			st := r.byShort[l.Short]
 			if gerr != nil || st == nil {
+				continue
+			}
+			var needTrain bool
+			pre, needTrain = r.preamble(st, now)
+			ch := tx.Cell.Channel
+			if r.trainCh[ch] || (needTrain && busyCh[ch]) {
+				r.sched.Requeue(tx.Cmd) // channel taken by a wake-up train this period
 				continue
 			}
 			frame, err = r.frame(tx.Dst, tx.Cmd.Payload, st.key, slp.KeyLink, true)
@@ -315,19 +392,76 @@ func (r *Runtime) runPeriod(now time.Time) {
 			log.Printf("frame for msg %d: %v", tx.Cmd.MsgID, err)
 			continue
 		}
+		if pre >= r.cfg.PeriodMs {
+			r.trainCh[tx.Cell.Channel] = true
+		} else {
+			busyCh[tx.Cell.Channel] = true
+		}
 		r.ref++
-		r.inflight[r.ref] = &inflight{cmd: tx.Cmd, group: tx.Cmd.IsGroup()}
+		dl := next
+		if pre >= r.cfg.PeriodMs {
+			dl = next + 1
+		}
+		r.inflight[r.ref] = &inflight{cmd: tx.Cmd, group: tx.Cmd.IsGroup(), deadline: dl}
 		r.usedCells[tx.Cell] = true
-		entries = append(entries, simnet.TxEntry{Channel: tx.Cell.Channel, Slot: tx.Cell.Slot, Ref: r.ref, Frame: frame})
+		entries = append(entries, simnet.TxEntry{Channel: tx.Cell.Channel, Slot: tx.Cell.Slot, PreMs: pre, Ref: r.ref, Frame: frame})
 	}
-	if err := r.radio.Send(simnet.EncodePeriod(r.period, bf, entries)); err != nil {
+	entries = append(entries, r.probes(now, busyCh)...)
+	if err := r.radio.Send(simnet.EncodePeriod(r.period, nil, entries)); err != nil {
 		log.Printf("radio: %v", err)
 	}
 	for c, n := range groupCells {
-		// Broadcasts are not ACKed per lock: every lock heard it in its own
-		// slot of this period. Results arrive as uplinks.
+		// Broadcasts are not ACKed per lock: every lock heard the wake-up
+		// train on its channel. Results arrive as uplinks.
 		r.pub.Publish(topics.UpAck, Ack{MsgID: c.MsgID, State: "delivered", Reason: "broadcast", Cells: n, AtMs: nowMs()}, false)
 	}
+}
+
+// probes plans one PROBE per suspect lock that is due, in its own cell
+// (r.mu held). A lock that answers sends a RECONNECT heartbeat, which makes
+// the platform re-send parked commands and pull missed records.
+func (r *Runtime) probes(now time.Time, busyCh map[int]bool) []simnet.TxEntry {
+	var out []simnet.TxEntry
+	for short, st := range r.byShort {
+		if !st.suspect || st.probing || now.Before(st.probeAt) {
+			continue
+		}
+		r.stMu.Lock()
+		div := st.div
+		r.stMu.Unlock()
+		if div > 1 && r.period%uint32(div) != 0 {
+			continue
+		}
+		l, err := r.table.Get(st.eui)
+		if err != nil || r.usedCells[l.Cell] || r.trainCh[l.Cell.Channel] {
+			continue
+		}
+		pre, train := r.preamble(st, now)
+		if train && busyCh[l.Cell.Channel] {
+			continue
+		}
+		r.seq++
+		f := &slp.Frame{Type: slp.FTMacCmd, Security: true, AckRequest: true, Seq: r.seq, PAN: r.cfg.PAN,
+			DstMode: slp.AddrShort, Dst: uint64(short), SrcMode: slp.AddrShort, Src: slp.ShortGateway,
+			FrameCounter: r.nextFC(), KeyID: slp.KeyLink, Payload: []byte{simnet.MacProbe}}
+		b, err := f.EncodeSecure(st.key, r.cfg.EUI)
+		if err != nil {
+			continue
+		}
+		dl := r.period
+		if train {
+			r.trainCh[l.Cell.Channel] = true
+			dl++
+		} else {
+			busyCh[l.Cell.Channel] = true
+		}
+		r.usedCells[l.Cell] = true
+		st.probing = true
+		r.ref++
+		r.inflight[r.ref] = &inflight{probe: st, deadline: dl}
+		out = append(out, simnet.TxEntry{Channel: l.Cell.Channel, Slot: l.Cell.Slot, PreMs: pre, Ref: r.ref, Frame: b})
+	}
+	return out
 }
 
 func (r *Runtime) frame(dst uint16, payload, key []byte, keyID uint8, ack bool) ([]byte, error) {
@@ -346,11 +480,44 @@ func (r *Runtime) onResult(res rcp.TxResult) {
 	if !ok || inf.group {
 		return
 	}
-	r.outcome(inf.cmd, res.Acked)
+	r.txOutcome(inf, res.Acked)
+}
+
+func (r *Runtime) txOutcome(inf *inflight, acked bool) {
+	if inf.probe != nil {
+		r.mu.Lock()
+		st := inf.probe
+		st.probing = false
+		if acked {
+			st.suspect = false
+			log.Printf("probe %016x: lock answered", st.eui)
+		} else {
+			st.probeBackoff *= 2
+			if st.probeBackoff > probeMax {
+				st.probeBackoff = probeMax
+			}
+			st.probeAt = time.Now().Add(st.probeBackoff)
+		}
+		r.mu.Unlock()
+		return
+	}
+	r.outcome(inf.cmd, acked)
 }
 
 func (r *Runtime) outcome(c *scheduler.Command, acked bool) {
-	switch r.sched.Result(c, acked) {
+	out := r.sched.Result(c, acked)
+	if out == scheduler.Failed {
+		// The lock is unreachable: probe it with backoff until it answers.
+		r.mu.Lock()
+		if l, err := r.table.Get(c.LockEUI); err == nil {
+			if st := r.byShort[l.Short]; st != nil && !st.suspect {
+				st.suspect, st.probeBackoff = true, probeMin
+				st.probeAt = time.Now().Add(probeMin)
+			}
+		}
+		r.mu.Unlock()
+	}
+	switch out {
 	case scheduler.Delivered:
 		r.pub.Publish(topics.UpAck, Ack{MsgID: c.MsgID, State: "delivered", LockEUI: HexEUI(c.LockEUI), Attempts: c.Attempts + 1, AtMs: nowMs()}, false)
 	case scheduler.Retrying:
@@ -369,7 +536,7 @@ func (r *Runtime) onUplink(up rcp.RxFrame) {
 		r.onJoin(f.Src)
 		return
 	}
-	if f.Type != slp.FTData || !f.Security || f.SrcMode != slp.AddrShort || f.PAN != r.cfg.PAN {
+	if (f.Type != slp.FTData && f.Type != slp.FTMacCmd) || !f.Security || f.SrcMode != slp.AddrShort || f.PAN != r.cfg.PAN {
 		return
 	}
 	r.mu.Lock()
@@ -390,9 +557,23 @@ func (r *Runtime) onUplink(up rcp.RxFrame) {
 		return
 	}
 	st.rxValid, st.rxLast, st.lastSeen = true, g.FrameCounter, time.Now()
+	st.suspect = false // it is back
 	r.mu.Unlock()
 	if g.AckRequest {
-		r.sendAck(uint16(f.Src), g.Seq)
+		r.sendAck(st, uint16(f.Src), g.Seq)
+	}
+	if g.Type == slp.FTMacCmd {
+		if len(g.Payload) >= 2 && g.Payload[0] == simnet.MacSniffDiv {
+			div := g.Payload[1]
+			if div == 0 {
+				div = 1
+			}
+			r.stMu.Lock()
+			st.div = div
+			r.stMu.Unlock()
+			log.Printf("lock %016x now sniffs every %d period(s) (fake-wake-up guard)", st.eui, div)
+		}
+		return
 	}
 
 	if len(g.Payload) < slp.UpSeqLen+slp.AppHdrLen {
@@ -408,17 +589,29 @@ func (r *Runtime) onUplink(up rcp.RxFrame) {
 
 // sendAck answers an uplink right away: the lock keeps its receiver on for
 // a few milliseconds after transmitting and retries with back-off (300 ms,
-// 600 ms, ...) when the ACK does not come. ACKs are not encrypted (like
-// IEEE 802.15.4): a forged ACK can only make the lock drop a message, and
-// lost records are recovered by the platform through READ_LOG.
-func (r *Runtime) sendAck(dst uint16, seq uint8) {
-	f := &slp.Frame{Type: slp.FTAck, PAN: r.cfg.PAN, Seq: seq, DstMode: slp.AddrShort, Dst: uint64(dst),
-		SrcMode: slp.AddrShort, Src: slp.ShortGateway}
-	b, err := f.Encode()
+// 600 ms, ...) when the ACK does not come. The ACK is authenticated with
+// K_link and carries where the gateway is in its period, the period number
+// and the time: this replaces the beacon (slot phase, time sync), so the
+// gateway never transmits when it has nothing to say.
+func (r *Runtime) sendAck(st *lockState, dst uint16, seq uint8) {
+	r.mu.Lock()
+	now := time.Now()
+	phase := 0
+	if !r.periodStart.IsZero() {
+		phase = int(now.Sub(r.periodStart).Milliseconds())
+		if phase >= r.cfg.PeriodMs {
+			phase = r.cfg.PeriodMs - 1
+		}
+	}
+	f := &slp.Frame{Type: slp.FTAck, Security: true, PAN: r.cfg.PAN, Seq: seq, DstMode: slp.AddrShort, Dst: uint64(dst),
+		SrcMode: slp.AddrShort, Src: slp.ShortGateway, FrameCounter: r.nextFC(), KeyID: slp.KeyLink,
+		Payload: simnet.AckPayload(phase, r.period, uint32(now.Unix()))}
+	b, err := f.EncodeSecure(st.key, r.cfg.EUI)
 	if err != nil {
+		r.mu.Unlock()
 		return
 	}
-	r.mu.Lock()
+	st.lastSync = now
 	r.ref++
 	ref := r.ref
 	r.mu.Unlock()
@@ -439,8 +632,18 @@ func (r *Runtime) onJoin(eui uint64) {
 		st = &lockState{eui: eui, key: r.cfg.LinkKey(eui)}
 		r.byShort[l.Short] = st
 	}
+	r.stMu.Lock()
+	r.byEUI[eui] = st
+	st.div = 1
+	r.stMu.Unlock()
+	now := time.Now()
 	st.rxValid = false // the lock restarted its MAC
-	st.lastSeen = time.Now()
+	st.lastSeen, st.lastSync, st.suspect = now, now, false
+	phase := 0
+	if !r.periodStart.IsZero() {
+		phase = int(now.Sub(r.periodStart).Milliseconds()) % r.cfg.PeriodMs
+	}
+	period := r.period
 	r.mu.Unlock()
 
 	pl := []byte{simnet.MacJoinAccept}
@@ -449,6 +652,8 @@ func (r *Runtime) onJoin(eui uint64) {
 	pl = binary.LittleEndian.AppendUint16(pl, uint16(l.Cell.Slot))
 	pl = binary.LittleEndian.AppendUint16(pl, uint16(r.cfg.PeriodMs))
 	pl = binary.LittleEndian.AppendUint16(pl, uint16(r.cfg.SlotMs))
+	pl = binary.LittleEndian.AppendUint16(pl, uint16(phase))
+	pl = binary.LittleEndian.AppendUint32(pl, period)
 	f := &slp.Frame{Type: slp.FTMacCmd, PAN: r.cfg.PAN, DstMode: slp.AddrLong, Dst: eui, SrcMode: slp.AddrShort, Src: slp.ShortGateway, Payload: pl}
 	b, err := f.Encode()
 	if err != nil {
@@ -466,7 +671,7 @@ func (r *Runtime) publishStatus(online bool) {
 	r.mu.Lock()
 	n, on := len(r.byShort), 0
 	for _, st := range r.byShort {
-		if time.Since(st.lastSeen) < 3*time.Minute {
+		if time.Since(st.lastSeen) < r.cfg.LockOfflineAfter {
 			on++
 		}
 	}

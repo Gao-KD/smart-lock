@@ -85,7 +85,7 @@ func Key(tag byte, eui uint64) []byte {
 const (
 	// host -> RCP
 	MsgHello  = 0x01 // gwEUI u64 | session u32 | channels u8 | slots u8 | period_ms u16 | slot_ms u16 | pan u16
-	MsgPeriod = 0x02 // period u32 | beacon_len u8 | beacon | n u16 | n x (ch u8 | slot u8 | ref u32 | len u8 | frame)
+	MsgPeriod = 0x02 // period u32 | beacon_len u8 (always 0: no beacon on the air) | beacon | n u16 | n x (ch u8 | slot u8 | pre_ms u16 | ref u32 | len u8 | frame)
 	MsgTxNow  = 0x03 // ref u32 | len u8 | frame   (control channel, immediate: join accept)
 	MsgAdd    = 0x04 // period u32 | n u16 | entries: more frames for the current period
 	// RCP -> host
@@ -96,12 +96,47 @@ const (
 // MAC command ids inside FTMacCmd payloads.
 const (
 	MacJoinReq    = 0x01 // (empty)
-	MacJoinAccept = 0x02 // short u16 | channel u8 | slot u16 | period_ms u16 | slot_ms u16
+	MacJoinAccept = 0x02 // short u16 | channel u8 | slot u16 | period_ms u16 | slot_ms u16 | phase_ms u16 | period u32
+	MacProbe      = 0x03 // gateway -> lock, secured, ACK requested: lock answers with a RECONNECT heartbeat
+	MacSniffDiv   = 0x04 // lock -> gateway, secured: div u8 (fake-wake-up guard)
 )
+
+// Synchronous wake-up (docs/radio-plan.md, C: slp/slot.h). Keep in sync.
+const (
+	DriftPPM          = 40  // lock + gateway crystals, worst case
+	SyncPreambleMinMs = 8   // sniff + radio turnaround margin
+	SyncPreambleMaxMs = 250 // longer: use a wake-up train
+	WakeTrainExtraMs  = 50  // wake-up train = period + this
+	AckPayloadLen     = 10  // phase_ms u16 | period u32 | unix u32
+)
+
+// SyncPreambleMs is the preamble that reaches a lock whose last ACK was
+// sinceSyncMs ago, or 0 when a wake-up train is needed.
+func SyncPreambleMs(sinceSyncMs int64) int {
+	if sinceSyncMs < 0 {
+		sinceSyncMs = 0
+	}
+	drift := (sinceSyncMs*DriftPPM + 999_999) / 1_000_000
+	pre := 2*drift + SyncPreambleMinMs
+	if pre > SyncPreambleMaxMs {
+		return 0
+	}
+	return int(pre)
+}
+
+// AckPayload is the authenticated payload of a gateway ACK: where the
+// gateway is in its period, the period number and the time. It replaces
+// the beacon.
+func AckPayload(phaseMs int, period uint32, unix uint32) []byte {
+	b := binary.LittleEndian.AppendUint16(nil, uint16(phaseMs))
+	b = binary.LittleEndian.AppendUint32(b, period)
+	return binary.LittleEndian.AppendUint32(b, unix)
+}
 
 // TxEntry is one planned frame in a period.
 type TxEntry struct {
 	Channel, Slot int
+	PreMs         int // preamble length; > period = wake-up train
 	Ref           uint32
 	Frame         []byte
 }
@@ -124,6 +159,7 @@ func EncodePeriod(period uint32, beacon []byte, txs []TxEntry) []byte {
 	b = binary.LittleEndian.AppendUint16(b, uint16(len(txs)))
 	for _, t := range txs {
 		b = append(b, byte(t.Channel), byte(t.Slot))
+		b = binary.LittleEndian.AppendUint16(b, uint16(t.PreMs))
 		b = binary.LittleEndian.AppendUint32(b, t.Ref)
 		b = append(b, byte(len(t.Frame)))
 		b = append(b, t.Frame...)
