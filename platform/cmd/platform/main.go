@@ -36,7 +36,7 @@ func main() {
 	floors := flag.Int("floors", 12, "floors")
 	rooms := flag.Int("rooms", 30, "rooms per floor")
 	floorsPerGW := flag.Int("floors-per-gw", 6, "floors served by one gateway")
-	offline := flag.Duration("offline-after", 100*time.Second, "lock shown offline after this long without uplink")
+	offline := flag.Duration("offline-after", 95*time.Minute, "lock shown offline after this long without uplink (3 heartbeats + margin)")
 	flag.Parse()
 
 	if *embedded != "" {

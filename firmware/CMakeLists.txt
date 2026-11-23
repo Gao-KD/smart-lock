@@ -30,6 +30,12 @@ if(SMARTLOCK_BUILD_TESTS)
     target_link_libraries(lock_tests PRIVATE lock_logic lock_hal_host slp_crypto_host)
     target_compile_options(lock_tests PRIVATE -Wall -Wextra -Werror)
     add_test(NAME lock_tests COMMAND lock_tests)
+
+    # The EFR32 board pin map, checked against the FG28 QFN68 facts.
+    add_executable(board_tests lock/tests/test_board.c)
+    target_include_directories(board_tests PRIVATE ${CMAKE_SOURCE_DIR}/common/slp/tests lock/port/efr32)
+    target_compile_options(board_tests PRIVATE -Wall -Wextra -Werror)
+    add_test(NAME board_tests COMMAND board_tests)
 endif()
 
 # PC simulator: hundreds of virtual locks running this firmware logic, the
