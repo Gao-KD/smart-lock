@@ -8,6 +8,7 @@
 - 平台：MQTT 5（TLS）+ 指令下发服务，每所学校独立私有化部署
 - 时延目标：单条指令 P99 ≤ 1.5 s 到锁；单网关约 270 把锁约 2 s 全部送达；广播 1 s 内全楼送达
 - 门锁功能：校园卡、密码（虚位/一次性/周期）、离线密码、手机蓝牙钥匙、成员冻结与退宿、试错冻结/胁迫/防撬/门未关等告警、室内反锁与门磁、访客呼叫确认后远程开门、参数配置、开门记录补传——见 **[docs/lock-features.md](docs/lock-features.md)**
+- 出厂与绑定：未绑定时体验模式（123456/任意卡/指纹/人脸）、网关批量绑定与安装师傅蓝牙绑定、两阶段提交 + A/B 密钥槽保证断电断连不变砖、授权恢复出厂——见 **[docs/provisioning.md](docs/provisioning.md)**
 - 连接策略：相位同步侦听（一直可达）、事件即时上报 + ACK 重发、断线重连与入网退避、信标校时、断网本地开门——见 **[docs/connectivity.md](docs/connectivity.md)**
 
 ## 模拟演示平台（在电脑上跑整套系统）
@@ -39,6 +40,7 @@ scripts/demo.sh all                                          # Docker: docker co
 
 ## 硬件
 
+- **[硬件交付说明](docs/hardware/handoff.md)**：给硬件工程师的平台选型、BOM 与频段采购、接口引脚表、软硬件分工、验收标准（含频段合规风险）
 - [测试购买清单](docs/hardware/purchase-list.md)
 - [嘉立创 EDA 原理图与 PCB 指南](docs/hardware/pcb-guide.md)
 
