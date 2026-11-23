@@ -2,11 +2,13 @@
 // in which (channel, slot) cell. See the design doc section "批量秒级下发方案".
 //
 // Rules:
-//   - A lock can only be reached in its own cell, once per period.
+//   - A lock can only be reached in its own cell, once per period, and only
+//     in periods it sniffs (Config.Eligible: fake-wake-up guard).
 //   - Higher priority first, FIFO within a priority.
 //   - Group/broadcast commands at P0/P1 take a whole period on every
-//     channel (every lock hears it once in its own slot). P2/P3 broadcasts
-//     only go out when no P0/P1 unicast is waiting.
+//     channel: one wake-up train per channel that every lock hears
+//     (docs/radio-plan.md). P2/P3 broadcasts only go out when no P0/P1
+//     unicast is waiting.
 //   - P2/P3 may use at most MaxBackgroundShare of each channel per period,
 //     so management traffic never starves interactive unlocks.
 //   - Expired commands are dropped, unacked ones retried up to MaxAttempts.
@@ -56,6 +58,10 @@ type Tx struct {
 type Config struct {
 	MaxBackgroundShare float64 // default 0.7
 	MaxAttempts        int     // default 3
+	// Eligible reports whether a lock listens in the period being planned
+	// (locks under a fake-wake-up attack sniff only every n-th period).
+	// nil = always.
+	Eligible func(lockEUI uint64) bool
 }
 
 var ErrUnknownLock = errors.New("scheduler: lock not in table")
@@ -146,15 +152,28 @@ func (s *Scheduler) pickGroup() *Command {
 	return nil
 }
 
+// planGroup sends a broadcast as one wake-up train per channel: every lock
+// sniffing once per period hears it, whatever its slot.
 func (s *Scheduler) planGroup(g *Command) []Tx {
 	s.remove(g)
 	var txs []Tx
 	for ch := 0; ch < s.table.Channels(); ch++ {
-		for sl := 0; sl < s.table.Slots(); sl++ {
-			txs = append(txs, Tx{Cell: locktable.Cell{Channel: ch, Slot: sl}, Dst: g.Group, Cmd: g})
-		}
+		txs = append(txs, Tx{Cell: locktable.Cell{Channel: ch, Slot: 0}, Dst: g.Group, Cmd: g})
 	}
 	return txs
+}
+
+func (s *Scheduler) eligible(eui uint64) bool {
+	return s.cfg.Eligible == nil || s.cfg.Eligible(eui)
+}
+
+// Requeue puts a planned command back without counting an attempt (the
+// runtime could not transmit it this period, e.g. its channel was busy
+// with a wake-up train).
+func (s *Scheduler) Requeue(c *Command) {
+	s.mu.Lock()
+	s.pending = append(s.pending, c)
+	s.mu.Unlock()
 }
 
 func (s *Scheduler) planUnicast() []Tx {
@@ -174,7 +193,7 @@ func (s *Scheduler) planUnicast() []Tx {
 			continue // lock left the gateway; drop
 		}
 		bg := c.Priority >= P2Management
-		if used[l.Cell] || (bg && bgUsed[l.Cell.Channel] >= bgCap) {
+		if used[l.Cell] || (bg && bgUsed[l.Cell.Channel] >= bgCap) || !s.eligible(c.LockEUI) {
 			rest = append(rest, c)
 			continue
 		}
@@ -237,7 +256,7 @@ func (s *Scheduler) TakeUrgent(now time.Time, free func(locktable.Cell) bool) []
 			continue
 		}
 		l, err := s.table.Get(c.LockEUI)
-		if err != nil || !free(l.Cell) {
+		if err != nil || !s.eligible(c.LockEUI) || !free(l.Cell) {
 			rest = append(rest, c)
 			continue
 		}

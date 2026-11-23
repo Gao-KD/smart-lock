@@ -29,6 +29,6 @@ enum {
     SIM_MSG_RX        = 0x82
 };
 
-enum { SIM_MAC_JOIN_REQ = 0x01, SIM_MAC_JOIN_ACCEPT = 0x02 };
+enum { SIM_MAC_JOIN_REQ = 0x01, SIM_MAC_JOIN_ACCEPT = 0x02, SIM_MAC_PROBE = 0x03, SIM_MAC_SNIFF_DIV = 0x04 };
 
 #endif

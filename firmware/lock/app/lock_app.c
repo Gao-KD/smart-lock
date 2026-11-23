@@ -8,7 +8,7 @@ void lock_app_init(lock_app_t *a)
 {
     memset(a, 0, sizeof(*a));
     a->cfg = (lock_cfg_t){ .autolock_s = 5, .volume = 2, .remote_allowed = 1, .wrong_limit = 5,
-                           .lockout_s = 180, .heartbeat_s = 300, .door_alarm_s = 120,
+                           .lockout_s = 180, .heartbeat_s = 1800, .door_alarm_s = 120,
                            .tz_offset_min = 480 };
     lock_core_init(&a->core, a->cfg.autolock_s);
     cred_init(&a->creds);
@@ -541,6 +541,11 @@ void lock_app_double_lock(lock_app_t *a, bool on)
     }
     a->core.double_locked = on;
     record_door(a);
+}
+
+void lock_app_rf_jam(lock_app_t *a)
+{
+    raise_alarm(a, SLP_ALARM_RF_JAM, 0, 0);
 }
 
 void lock_app_tamper(lock_app_t *a)

@@ -29,6 +29,8 @@ type SimLock struct {
 	ClockOffs int  `json:"clock_offset_s"`
 	AutolockS int  `json:"autolock_s"`
 	Remote    int  `json:"remote_allowed"`
+	SniffDiv  int  `json:"sniff_div"` // fake-wake-up guard: sniffs every n-th period
+	Wakes     int  `json:"wakes"`     // preambles heard, including false ones
 }
 
 // SimCtl talks to locksim's control port (text over UDP).
@@ -98,9 +100,9 @@ func (s *SimCtl) parse(r string) {
 		var e uint64
 		var x SimLock
 		var rf, joined, clutch int
-		if _, err := fmt.Sscanf(l, "%x %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", &e, &x.State, &x.BatteryMV, &rf, &joined,
+		if _, err := fmt.Sscanf(l, "%x %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d %d", &e, &x.State, &x.BatteryMV, &rf, &joined,
 			&x.Cards, &x.BattLevel, &clutch, &x.Ind, &x.IndAgeMs, &x.Channel, &x.Slot, &x.Short,
-			&x.Flags, &x.LogSeq, &x.UpPending, &x.ClockOffs, &x.AutolockS, &x.Remote); err != nil {
+			&x.Flags, &x.LogSeq, &x.UpPending, &x.ClockOffs, &x.AutolockS, &x.Remote, &x.SniffDiv, &x.Wakes); err != nil {
 			continue
 		}
 		x.RF, x.Joined, x.Clutch = rf == 1, joined == 1, clutch == 1

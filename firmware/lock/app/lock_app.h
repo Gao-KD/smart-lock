@@ -115,6 +115,8 @@ slp_result_t lock_app_keypad(lock_app_t *a, const uint8_t *digits, uint8_t len);
 slp_result_t lock_app_ble(lock_app_t *a, const uint8_t *token, uint8_t len);
 void lock_app_door(lock_app_t *a, bool open);
 void lock_app_double_lock(lock_app_t *a, bool on);
+/* The radio's fake-wake-up guard reduced the sniff rate (battery drain attack). */
+void lock_app_rf_jam(lock_app_t *a);
 void lock_app_tamper(lock_app_t *a);
 void lock_app_mech_key(lock_app_t *a);
 /* Visitor pressed the call button: returns the request id. */

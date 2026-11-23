@@ -47,7 +47,8 @@ var demos = []demo{
 	{"config", "整栋楼统一参数配置", "批量下发自动落锁时间等参数到 360 把锁，秒级完成", demoConfig},
 	{"ble-fallback", "手机蓝牙本地开门（网络故障兜底）", "门锁收不到网关时，宿管/学生用平台签发的蓝牙钥匙在门口开门；恢复后记录自动补传", demoBLE},
 	{"offline-records", "断网记录不丢 / 上行确认重发", "离线时刷卡 25 次，锁内队列放不下的记录在重连后由平台补拉；空口丢包 30% 时上行靠 ACK 重发不丢", demoOfflineRecords},
-	{"time-sync", "信标校时", "门锁时钟漂移 5 分钟，下一个网关信标就校正（离线密码、有效期都依赖准确时间）", demoTimeSync},
+	{"time-sync", "ACK 校时", "门锁时钟漂移 5 分钟，下一次上行收到的网关 ACK 就校正（网关不发信标，离线密码、有效期都依赖准确时间）", demoTimeSync},
+	{"wake-jam", "防耗电攻击（伪造前导码）", "攻击者对门锁连续发伪造前导码，门锁降低侦听频率并告警，网关只在门锁侦听的周期下发，指令照样送达", demoWakeJam},
 }
 
 func main() {
@@ -123,6 +124,7 @@ type simLock struct {
 	ClockOffs int  `json:"clock_offset_s"`
 	AutolockS int  `json:"autolock_s"`
 	Remote    int  `json:"remote_allowed"`
+	SniffDiv  int  `json:"sniff_div"`
 }
 
 type lockView struct {

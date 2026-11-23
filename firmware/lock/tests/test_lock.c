@@ -152,12 +152,18 @@ static void test_mac_wakeup_and_filtering(void)
     lock_mac_init(&m, 0x0101, 0x0042, 3, 25, 1000, 20);
     CHECK_EQ(lock_mac_next_wakeup(&m, 5000), 6000u); /* unsynced: once per period */
 
-    lock_mac_on_beacon(&m, 10000, 0);
-    /* slot 25 starts at 10500; wake 2 ms early. */
-    CHECK_EQ(lock_mac_next_wakeup(&m, 10001), 10498u);
-    CHECK_EQ(lock_mac_next_wakeup(&m, 10499), 11498u);
+    lock_mac_on_join_accept(&m, 10000, 0, 100); /* period 100 started at 10000 */
+    /* slot 25 starts at 10500: sniff for the preamble there (the gateway's
+     * preamble already covers the drift, no early wake-up needed). */
+    CHECK_EQ(lock_mac_next_wakeup(&m, 10001), 10500u);
+    CHECK_EQ(lock_mac_next_wakeup(&m, 10501), 11500u);
+    CHECK_EQ(lock_mac_period_at(&m, 11500), 101u);
+    /* An ACK sent 300 ms into period 205 re-anchors phase and period. */
+    lock_mac_on_ack(&m, 50300, 300, 205);
+    CHECK_EQ(lock_mac_next_wakeup(&m, 50300), 50500u);
+    CHECK_EQ(lock_mac_period_at(&m, 50500), 205u);
 
-    lock_mac_check_sync(&m, 10000 + LOCK_MAC_SYNC_TIMEOUT_MS + 1);
+    lock_mac_check_sync(&m, 50300 + LOCK_MAC_SYNC_TIMEOUT_MS + 1);
     CHECK_EQ(m.sync, LOCK_MAC_UNSYNCED);
 
     slp_frame_t f = { .type = SLP_FT_DATA, .security = true, .pan_id = 0x0101,
@@ -686,16 +692,69 @@ static void test_uplink_queue_ack_and_retry(void)
     CHECK_EQ(q.dropped, 1u);
 }
 
+static void test_sync_preamble_length(void)
+{
+    CHECK_EQ(slp_sync_preamble_ms(0), SLP_SYNC_PREAMBLE_MIN_MS);
+    /* 5 min since the last ACK: 300 s x 40 ppm = 12 ms each way */
+    CHECK_EQ(slp_sync_preamble_ms(300000), 2u * 12u + SLP_SYNC_PREAMBLE_MIN_MS);
+    /* 30 min heartbeat: 72 ms each way, still synchronous */
+    CHECK_EQ(slp_sync_preamble_ms(1800000), 2u * 72u + SLP_SYNC_PREAMBLE_MIN_MS);
+    /* hours without an ACK: wake-up train instead */
+    CHECK_EQ(slp_sync_preamble_ms(4u * 3600000u), 0u);
+}
+
+static void test_fake_wakeup_guard(void)
+{
+    lock_mac_t m;
+    lock_mac_init(&m, 0x0101, 0x0042, 0, 7, 1000, 20);
+    lock_mac_on_join_accept(&m, 0, 0, 0);
+    CHECK_EQ(m.sniff_div, 1);
+    uint32_t t = 1000;
+    bool changed = false;
+    for (unsigned i = 0; i < LOCK_MAC_DRAIN_WAKES; i++) {
+        changed = lock_mac_on_false_wake(&m, t += 100);
+    }
+    CHECK(changed);
+    CHECK_EQ(m.sniff_div, 2);
+    CHECK(lock_mac_sniff_period(&m, 4));
+    CHECK(!lock_mac_sniff_period(&m, 5));
+    /* next sniff skips odd periods: period 0 starts at 0, slot 7 = +140 ms */
+    CHECK_EQ(lock_mac_next_wakeup(&m, 1200), 2140u);
+    /* sustained attack: 4, then 8, never more */
+    for (unsigned i = 0; i < 5 * LOCK_MAC_DRAIN_WAKES; i++) {
+        lock_mac_on_false_wake(&m, t += 100);
+    }
+    CHECK_EQ(m.sniff_div, LOCK_MAC_DIV_MAX);
+    /* sparse false wake-ups (one per window) never escalate */
+    lock_mac_t q;
+    lock_mac_init(&q, 0x0101, 0x0042, 0, 7, 1000, 20);
+    for (unsigned i = 0; i < 3 * LOCK_MAC_DRAIN_WAKES; i++) {
+        CHECK(!lock_mac_on_false_wake(&q, 1 + i * (LOCK_MAC_DRAIN_WINDOW_MS + 1)));
+    }
+    /* quiet time halves the divisor step by step */
+    CHECK(!lock_mac_check_sync(&m, t + 1000));
+    CHECK(lock_mac_check_sync(&m, t + LOCK_MAC_DRAIN_QUIET_MS + 1));
+    CHECK_EQ(m.sniff_div, 4);
+    t += LOCK_MAC_DRAIN_QUIET_MS + 1;
+    CHECK(lock_mac_check_sync(&m, t + LOCK_MAC_DRAIN_QUIET_MS + 1));
+    CHECK_EQ(m.sniff_div, 2);
+}
+
 static void test_mac_loss_and_rejoin_backoff(void)
 {
     lock_mac_t m;
     lock_mac_init(&m, 0x0101, 0x0042, 0, 3, 1000, 20);
-    CHECK(!lock_mac_on_beacon(&m, 1000, 0));
-    CHECK(!lock_mac_on_beacon(&m, 2000, 0));
-    CHECK(lock_mac_on_beacon(&m, 2000 + LOCK_MAC_LOST_MS + 1000, 0)); /* came back */
+    lock_mac_on_join_accept(&m, 1000, 0, 1);
+    CHECK(!lock_mac_on_ack(&m, 2000, 0, 2));
+    lock_mac_uplink_failed(&m, 3000);            /* an uplink went unanswered */
+    CHECK(!lock_mac_need_rejoin(&m, 4000));
+    CHECK(lock_mac_on_ack(&m, 8000, 0, 8));      /* first ACK after that: came back */
+    CHECK(!lock_mac_on_ack(&m, 9000, 0, 9));
+    CHECK(!lock_mac_need_rejoin(&m, 9000 + LOCK_MAC_REJOIN_MS + 1)); /* quiet but not suspect */
+    lock_mac_uplink_failed(&m, 9500);
     CHECK_EQ(m.lost_count, 1u);
     CHECK(!lock_mac_need_rejoin(&m, 10000));
-    CHECK(lock_mac_need_rejoin(&m, 8000 + LOCK_MAC_REJOIN_MS + 1));
+    CHECK(lock_mac_need_rejoin(&m, 9000 + LOCK_MAC_REJOIN_MS + 1));
     CHECK_EQ(lock_mac_join_backoff(&m, 0), 3000u);
     CHECK_EQ(lock_mac_join_backoff(&m, 0), 6000u);
     CHECK_EQ(lock_mac_join_backoff(&m, 0), 12000u);
@@ -714,6 +773,8 @@ int main(void)
     RUN(test_emergency_holds_open);
     RUN(test_clutch_fault);
     RUN(test_mac_wakeup_and_filtering);
+    RUN(test_sync_preamble_length);
+    RUN(test_fake_wakeup_guard);
     RUN(test_access_events_queued);
     RUN(test_battery_levels_and_hysteresis);
     RUN(test_event_queue_overflow_keeps_newest);

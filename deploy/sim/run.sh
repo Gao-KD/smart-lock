@@ -12,7 +12,7 @@ platform -embedded-broker :1883 -http :8080 -locksim 127.0.0.1:9200 -building "$
 sleep 1
 i=1
 while [ "$i" -le "$G" ]; do
-  gateway -building "$B" -index "$i" -rcp "127.0.0.1:$(( 9100 + i - 1 ))" 2>&1 | sed -u "s/^/[gw-$i] /" &
+  gateway -lock-offline-after 100s -building "$B" -index "$i" -rcp "127.0.0.1:$(( 9100 + i - 1 ))" 2>&1 | sed -u "s/^/[gw-$i] /" &
   i=$(( i + 1 ))
 done
 echo "模拟平台已启动: http://localhost:8080  ($FLOORS 层 x $ROOMS 间, $G 台网关)"

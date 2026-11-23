@@ -169,6 +169,8 @@ func (c *Console) Handler() http.Handler {
 			cmd = fmt.Sprintf("dropack %s %d", id, max(body.N, 1))
 		case "jam":
 			cmd = fmt.Sprintf("jam %s %d", id, max(body.N, 1))
+		case "wakejam":
+			cmd = fmt.Sprintf("wakejam %s %d", id, max(body.N, 1))
 		case "replay", "tamper", "pry", "key", "doorbell":
 			cmd = r.PathValue("action") + " " + id
 		case "keypad":

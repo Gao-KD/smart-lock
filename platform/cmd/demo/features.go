@@ -9,7 +9,7 @@ import (
 // Demos of the lock features modelled on mainstream smart-lock platforms
 // (passwords, offline passwords, members, alarms, double lock, unlock
 // requests, configuration) and of the connection strategy (BLE fallback,
-// record recovery, uplink ACK/retry, beacon time sync).
+// record recovery, uplink ACK/retry, ACK time sync, fake-wake-up guard).
 
 var beijing = time.FixedZone("CST", 8*3600)
 
@@ -524,7 +524,35 @@ func demoTimeSync() error {
 	if err := simDo(room, "clock", map[string]int{"delta_s": -300}); err != nil {
 		return err
 	}
-	e, found := waitEvent(since, room, 5*time.Second, "信标校时")
+	step("网关不发信标；门锁下一次上行（心跳、开门记录或这里的状态查询回复）收到的 ACK 里带标准时间")
+	if _, err := submit("/api/locks/"+room+"/status", nil); err != nil {
+		return err
+	}
+	e, found := waitEvent(since, room, 8*time.Second, "ACK 校时")
 	l := lock(room)
-	return expect(found && l.Sim.ClockOffs > -3 && l.Sim.ClockOffs < 3, "%s（网关每秒的信标里带有标准时间）", strings.TrimSpace(e.Text))
+	return expect(found && l.Sim.ClockOffs > -3 && l.Sim.ClockOffs < 3, "%s（ACK 用链路密钥认证，伪造不了时间）", strings.TrimSpace(e.Text))
+}
+
+func demoWakeJam() error {
+	room := "1130"
+	step("攻击者对 %s 连续发送 25 个伪造前导码（想让它一直开着接收机，把电池耗光）", room)
+	since := lastEventID()
+	if err := simDo(room, "wakejam", map[string]int{"n": 25}); err != nil {
+		return err
+	}
+	e, found := waitEvent(since, room, 5*time.Second, "耗电攻击")
+	l := lock(room)
+	if err := expect(found && l.Sim.SniffDiv >= 4, "门锁把侦听降为每 %d 个周期一次，平台收到告警：%s", l.Sim.SniffDiv, strings.TrimSpace(e.Text)); err != nil {
+		return err
+	}
+	step("攻击期间平台下发远程开门：网关只在这把锁侦听的周期发送")
+	id, err := submit("/api/locks/"+room+"/unlock", map[string]any{"duration_s": 3})
+	if err != nil {
+		return err
+	}
+	r, err := waitCmd(id, 15*time.Second)
+	if err != nil {
+		return err
+	}
+	return expect(r.Result == "OK", "照样送达并开门（耗时 %d ms，最多多等 %d 个周期）；攻击停止 5 分钟后侦听频率逐级恢复", ms(r.QueuedAt, r.ExecutedAt), l.Sim.SniffDiv-1)
 }
