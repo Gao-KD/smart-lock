@@ -25,7 +25,7 @@ symdir = sys.argv[1] if len(sys.argv) > 1 else "/usr/share/kicad/symbols"
 P = Project(NAME, StdLib(symdir))
 
 # ------------------------------------------------------------------ nets
-for n in ["GND", "BAT", "USB_VBUS", "VBAT_P", "3V3", "3V3_NFC", "3V3_FP", "5V_FACE", "DVDD"]:
+for n in ["GND", "BAT", "USB_VBUS", "VBAT_P", "3V3", "3V3_NFC", "3V3_FP", "5V_FACE", "DVDD", "PAVDD"]:
     P.add_power(n)
 
 # ------------------------------------------------------------------ parts tables
@@ -250,7 +250,7 @@ G = {  # GPIO -> signal, exactly board-spec section 3 / board.h
 for i in range(9, 16):
     G["PD%02d" % i] = "TP_PD%d" % i
 upins = {"50": "3V3", "49": "VREGSW", "51": "GND", "52": "DVDD", "48": "DECOUPLE", "53": "3V3",
-         "6": "3V3", "33": "3V3", "54": "3V3", "19": "3V3", "25": "3V3", "20": "GND", "69": "GND",
+         "6": "3V3", "33": "3V3", "54": "3V3", "19": "3V3", "25": "PAVDD", "20": "GND", "69": "GND",
          "18": "RESETn", "16": "HFXI", "17": "HFXO", "23": "SUBG_O1", "21": "SUBG_I1",
          "24": "RF2G4_O0", "22": "RF2G4_I0", "2": "LFXTAL_O", "1": "LFXTAL_I"}
 for g, pad in PAD.items():
@@ -269,8 +269,10 @@ C(sm, "C25", "100nF", "3V3", note="IOVDD pad 33")
 C(sm, "C26", "100nF", "3V3", note="IOVDD pad 54")
 C(sm, "C27", "100nF", "3V3", note="AVDD")
 C(sm, "C28", "100nF", "3V3", note="RFVDD")
-C(sm, "C29", "100nF", "3V3", note="PAVDD")
-C(sm, "C30", "10uF", "3V3", note="PAVDD bulk")
+C(sm, "C29", "100nF", "PAVDD", note="PAVDD")
+C(sm, "C30", "10uF", "PAVDD", note="PAVDD bulk")
+R(sm, "R21", "0", "DVDD", "PAVDD", note="PAVDD 选 1.8 V（DC-DC 输出），默认贴；与 R22 二选一")
+R(sm, "R22", "0", "3V3", "PAVDD", dnp=True, note="PAVDD 选 3V3，默认不贴；与 R21 二选一")
 P.part(sm, "Y1", "Device:Crystal_GND24", "39.0MHz", "Crystal:Crystal_SMD_2016-4Pin_2.0x1.6mm",
        {"1": "HFXI", "3": "HFXO", "2": "GND", "4": "GND"}, "C20248925", "8Y39072005",
        note="39.0 MHz，负载电容/精度按参考设计核对", newrow=True)
@@ -286,6 +288,7 @@ P.part(sm, "J3", "Connector_Generic:Conn_02x05_Odd_Even", "DEBUG 2x5 1.27",
 for i, n in enumerate(["SWCLK", "SWDIO", "RESETn", "VCOM_TX", "VCOM_RX", "SWV"]):
     TP(sm, "TP%d" % (4 + i), n)
 P.part(sm, "#FLG07", "power:PWR_FLAG", "PWR_FLAG", "", {"1": "DVDD"}, bom=False)
+P.part(sm, "#FLG09", "power:PWR_FLAG", "PWR_FLAG", "", {"1": "PAVDD"}, bom=False)
 for i in range(9, 16):
     TP(sm, "TP%d" % (i + 1), "TP_PD%d" % i)
 
@@ -293,11 +296,11 @@ for i in range(9, 16):
 sr = P.sheet("射频", "rf.kicad_sch", "射频：433 MHz 匹配/低通/π 型微调/天线选择，2.4 GHz 匹配 + PCB 天线")
 sr.text("433 MHz：TX/RX 直连（Direct-Tie）匹配，无射频开关。拓扑和取值由项目方提供，依据 EFR32ZG28 数据手册 5.2.3（Fig 5.7 / Table 5.5）\n"
         "   与 AN923.2 的 433 MHz +14 dBm 匹配网络，生成工程时无法下载原文核对，打样前请对照原文确认一遍。\n"
-        "   映射：官方 L1=L101（馈电，接 PAVDD 同一电源 3V3）、L2=L102、C1=C101、C2=C102、L3=L103、C3=C105（原 L106 位）。\n"
+        "   映射：官方 L1=L101（馈电，接 PAVDD）、L2=L102、C1=C101、C2=C102、L3=L103、C3=C105（原 L106 位）。\n"
         "   +14 dBm 匹配：门锁限 10 mW e.r.p.，传导功率按天线实测设定，不要按 +20 dBm 满功率发射（满功率需另一套匹配）。\n"
         "   单级 LC，谐波余量少，送检前用频谱仪看二、三次谐波。C106/C107 为天线端 π 型微调位，默认不贴。\n"
         "R101/R102 二选一：默认贴 R101 接弹簧天线 ANT1；改用 IPEX（J8）时贴 R102、拆 R101。\n"
-        "2.4 GHz 部分（L201/L202/C201/C202）取值仍待照抄 BRD4401C。\n"
+        "2.4 GHz：按 AN1409 Figure 1.2 / Table 1.2（10 dBm，PAVDD 1.8 V 条件），0201 封装；C204 用 20 pF 代替 19 pF。\n"
         "布线：50 Ω 共面波导（JLC04161H-7628 参考 0.30 mm 线宽 / 0.20 mm 间距，用嘉立创计算器复核），第 2 层完整地，地过孔间距 1.5-2 mm；\n"
         "   ANT1 周围 5 mm 内所有层禁铺铜；天线在板上沿，远离电池仓和电机 >=15 mm。", 15, 225)
 
@@ -307,9 +310,9 @@ def RFP(sh, ref, sym, val, a, b, lcsc, mpn, note):
     return P.part(sh, ref, sym, val, fp, {"1": a, "2": b}, lcsc, mpn, note=note)
 
 
-RFP(sr, "L101", "Device:L", "10nH", "SUBG_O1", "3V3", "C77103", "LQG15HS10NJ02D", "官方 L1：TX 馈电/匹配，接 PAVDD 电源（3V3）")
-C(sr, "C108", "100nF", "3V3", note="L101 电源端就近去耦")
-RFP(sr, "C109", "Device:C", "100pF", "3V3", "GND", "C77177", "GRM1555C1H101JA01D", "L101 电源端就近去耦（高频）")
+RFP(sr, "L101", "Device:L", "10nH", "SUBG_O1", "PAVDD", "C77103", "LQG15HS10NJ02D", "官方 L1：TX 馈电/匹配，接 PAVDD")
+C(sr, "C108", "100nF", "PAVDD", note="L101 电源端就近去耦")
+RFP(sr, "C109", "Device:C", "100pF", "PAVDD", "GND", "C77177", "GRM1555C1H101JA01D", "L101 电源端就近去耦（高频）")
 RFP(sr, "L102", "Device:L", "33nH", "SUBG_O1", "RF_SUBG", "C86062", "LQG15HS33NJ02D", "官方 L2：TX 串联匹配")
 RFP(sr, "C101", "Device:C", "15pF", "RF_SUBG", "GND", "C76950", "GRM1555C1H150JA01D", "官方 C1：公共节点对地，C0G ±5%")
 RFP(sr, "C102", "Device:C", "5.6pF", "SUBG_I1", "RF_SUBG", "C85941", "GRM1555C1H5R6CA01D", "官方 C2：RX 串联，C0G ±0.25 pF")
@@ -326,12 +329,27 @@ P.part(sr, "ANT1", "Device:Antenna", "433MHz spring", "smartlock:Spring_Antenna_
        {"1": "ANT_SPRING"}, "", "433 MHz 螺旋弹簧天线（手焊）", note="弹簧天线焊盘，板上沿")
 P.part(sr, "J8", "Connector:Conn_Coaxial", "IPEX", "Connector_Coaxial:U.FL_Hirose_U.FL-R-SMT-1_Vertical",
        {"1": "ANT_IPEX", "2": "GND"}, "C496552", "BWIPX-1-001E", dnp=True, note="IPEX/U.FL 座（预留）")
-TBD(sr, "L201", "L", "RF2G4_O0", "RF24_N", note="2.4 GHz 匹配，整块照抄 BRD4401C")
-TBD(sr, "L202", "L", "RF2G4_I0", "RF24_N", note="2.4 GHz 匹配，整块照抄 BRD4401C")
-TBD(sr, "C201", "C", "RF24_N", "GND", note="2.4 GHz 匹配，整块照抄 BRD4401C")
-TBD(sr, "C202", "C", "RF24_N", "RF24_ANT", note="2.4 GHz 匹配，整块照抄 BRD4401C")
-P.part(sr, "C203", "Device:C", "DNP", FP_C0402, {"1": "RF24_ANT", "2": "GND"}, "", "", dnp=True,
-       note="天线微调位，默认不贴")
+# 2.4 GHz: AN1409 Figure 1.2 / Table 1.2 (2.4 GHz, 10 dBm, PAVDD 1.8 V), 0201 like the reference
+FP_L0201 = "Inductor_SMD:L_0201_0603Metric"
+FP_C0201 = "Capacitor_SMD:C_0201_0603Metric"
+
+
+def RF24(ref, kind, val, a, b, lcsc, mpn, note):
+    if kind == "L":
+        return P.part(sr, ref, "Device:L", val, FP_L0201, {"1": a, "2": b}, lcsc, mpn, note=note)
+    return P.part(sr, ref, "Device:C", val, FP_C0201, {"1": a, "2": b}, lcsc, mpn, note=note)
+
+
+RF24("L201", "L", "3nH", "RF2G4_O0", "RF24_A", "C98044", "LQP03TN3N0B02D", "AN1409 L1：TX 串联")
+RF24("C201", "C", "1pF", "RF24_A", "GND", "C91603", "GJM0335C1E1R0BB01D", "AN1409 C1：TX 对地")
+RF24("L202", "L", "8.2nH", "RF24_A", "RF24_B", "C206407", "LQP03TN8N2J02D", "AN1409 L2：TX 串联")
+RF24("C202", "C", "0.3pF", "RF24_B", "GND", "C237456", "GJM0335C1ER30BB01D", "AN1409 C2：TX 对地")
+RF24("C204", "C", "20pF", "RF24_B", "RF24_ANT", "C426116", "GJM0335C1E200GB01D",
+     "AN1409 C3（官方 19 pF，0201 无 19 pF 现货，用 20 pF ±2%；2.4 GHz 下为串联隔直，阻抗约 3 Ω，影响可忽略）")
+RF24("L203", "L", "3.1nH", "RF2G4_I0", "RF24_ANT", "C206428", "LQP03TN3N1B02D", "AN1409 L3：RX 串联到 50 Ω 节点")
+RF24("L204", "L", "1.8nH", "RF2G4_I0", "GND", "C98040", "LQP03TN1N8B02D", "AN1409 L4：RX 对地")
+P.part(sr, "C203", "Device:C", "DNP", FP_C0201, {"1": "RF24_ANT", "2": "GND"}, "", "", dnp=True,
+       note="天线端微调位，默认不贴")
 P.part(sr, "ANT2", "Device:Antenna_Shield", "2.4GHz PCB IFA", "RF_Antenna:Texas_SWRA117D_2.4GHz_Left",
        {"1": "RF24_ANT", "2": "GND"}, "", "", bom=False,
        note="PCB 倒 F 天线（铜皮，不是器件）；形状建议照抄 BRD4401C")
