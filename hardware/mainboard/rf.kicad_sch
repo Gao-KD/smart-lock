@@ -1,0 +1,1500 @@
+(kicad_sch (version 20231120) (generator "eeschema") (generator_version "8.0")
+(uuid "bc4a9052-4317-5dc7-b019-55b53bf980cc") (paper "A3")
+(title_block (title "射频：433 MHz 匹配/低通/π 型微调/天线选择，2.4 GHz 匹配 + PCB 天线") (date "2026-11-24") (rev "A") (company "smart-lock") (comment 1 "引脚与 docs/hardware/board-spec.md 第 3 节、firmware/lock/port/efr32/board.h 一一对应"))
+(lib_symbols
+(symbol "Connector:Conn_Coaxial"
+		(pin_names
+			(offset 1.016) hide)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "J"
+			(at 0.254 3.048 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "Conn_Coaxial"
+			(at 2.921 0 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "coaxial connector (BNC, SMA, SMB, SMC, Cinch/RCA, LEMO, ...)"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "BNC SMA SMB SMC LEMO coaxial connector CINCH RCA MCX MMCX U.FL UMRF"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "*BNC* *SMA* *SMB* *SMC* *Cinch* *LEMO* *UMRF* *MCX* *U.FL*"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "Conn_Coaxial_0_1"
+			(arc
+				(start -1.778 -0.508)
+				(mid 0.2311 -1.8066)
+				(end 1.778 0)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.54 0) (xy -0.508 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -2.54) (xy 0 -1.778)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 0 0)
+				(radius 0.508)
+				(stroke
+					(width 0.2032)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(arc
+				(start 1.778 0)
+				(mid 0.2099 1.8101)
+				(end -1.778 0.508)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "Conn_Coaxial_1_1"
+			(pin passive line
+				(at -5.08 0 0)
+				(length 2.54)
+				(name "In"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -5.08 90)
+				(length 2.54)
+				(name "Ext"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+(symbol "Device:Antenna"
+		(pin_numbers hide)
+		(pin_names
+			(offset 1.016) hide)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "AE"
+			(at -1.905 1.905 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "Antenna"
+			(at -1.905 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Antenna"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "antenna"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "Antenna_0_1"
+			(polyline
+				(pts
+					(xy 0 2.54) (xy 0 -3.81)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 2.54) (xy 0 -2.54) (xy -1.27 2.54)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "Antenna_1_1"
+			(pin input line
+				(at 0 -5.08 90)
+				(length 2.54)
+				(name "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+(symbol "Device:Antenna_Shield"
+		(pin_numbers hide)
+		(pin_names
+			(offset 1.016) hide)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "AE"
+			(at -1.905 4.445 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Value" "Antenna_Shield"
+			(at -1.905 2.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify right)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 2.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 0 2.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Antenna with extra pin for shielding"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "antenna"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "Antenna_Shield_0_1"
+			(arc
+				(start -0.508 -1.143)
+				(mid -0.8429 -2.1194)
+				(end 0 -2.667)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(arc
+				(start 0 -2.667)
+				(mid 0.7989 -2.1052)
+				(end 0.508 -1.143)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 -2.54) (xy 0 0)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0 5.08) (xy 0 -3.81)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 0.762 -1.905) (xy 2.54 -1.905)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 2.54 -2.54) (xy 2.54 -1.905)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy 1.27 5.08) (xy 0 0) (xy -1.27 5.08)
+				)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(circle
+				(center 0.762 -1.905)
+				(radius 0.1778)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type outline)
+				)
+			)
+		)
+		(symbol "Antenna_Shield_1_1"
+			(pin input line
+				(at 0 -5.08 90)
+				(length 2.54)
+				(name "A"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin input line
+				(at 2.54 -5.08 90)
+				(length 2.54)
+				(name "Shield"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+(symbol "Device:C"
+		(pin_numbers hide)
+		(pin_names
+			(offset 0.254)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "C"
+			(at 0.635 2.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Value" "C"
+			(at 0.635 -2.54 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(justify left)
+			)
+		)
+		(property "Footprint" ""
+			(at 0.9652 -3.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Unpolarized capacitor"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "cap capacitor"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "C_*"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "C_0_1"
+			(polyline
+				(pts
+					(xy -2.032 -0.762) (xy 2.032 -0.762)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(polyline
+				(pts
+					(xy -2.032 0.762) (xy 2.032 0.762)
+				)
+				(stroke
+					(width 0.508)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "C_1_1"
+			(pin passive line
+				(at 0 3.81 270)
+				(length 2.794)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -3.81 90)
+				(length 2.794)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+(symbol "Device:L"
+		(pin_numbers hide)
+		(pin_names
+			(offset 1.016) hide)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "L"
+			(at -1.27 0 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "L"
+			(at 1.905 0 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Inductor"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "inductor choke coil reactor magnetic"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "Choke_* *Coil* Inductor_* L_*"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "L_0_1"
+			(arc
+				(start 0 -2.54)
+				(mid 0.6323 -1.905)
+				(end 0 -1.27)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(arc
+				(start 0 -1.27)
+				(mid 0.6323 -0.635)
+				(end 0 0)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(arc
+				(start 0 0)
+				(mid 0.6323 0.635)
+				(end 0 1.27)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+			(arc
+				(start 0 1.27)
+				(mid 0.6323 1.905)
+				(end 0 2.54)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "L_1_1"
+			(pin passive line
+				(at 0 3.81 270)
+				(length 1.27)
+				(name "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -3.81 90)
+				(length 1.27)
+				(name "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+(symbol "Device:R"
+		(pin_numbers hide)
+		(pin_names
+			(offset 0)
+		)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "R"
+			(at 2.032 0 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Value" "R"
+			(at 0 0 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at -1.778 0 90)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" "~"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Resistor"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "R res resistor"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_fp_filters" "R_*"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "R_0_1"
+			(rectangle
+				(start -1.016 -2.54)
+				(end 1.016 2.54)
+				(stroke
+					(width 0.254)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "R_1_1"
+			(pin passive line
+				(at 0 3.81 270)
+				(length 1.27)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+			(pin passive line
+				(at 0 -3.81 90)
+				(length 1.27)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "2"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+(symbol "power:GND"
+		(power)
+		(pin_numbers hide)
+		(pin_names
+			(offset 0) hide)
+		(exclude_from_sim no)
+		(in_bom yes)
+		(on_board yes)
+		(property "Reference" "#PWR"
+			(at 0 -6.35 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Value" "GND"
+			(at 0 -3.81 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+			)
+		)
+		(property "Footprint" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Datasheet" ""
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "Description" "Power symbol creates a global label with name \"GND\" , ground"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(property "ki_keywords" "global power"
+			(at 0 0 0)
+			(effects
+				(font
+					(size 1.27 1.27)
+				)
+				(hide yes)
+			)
+		)
+		(symbol "GND_0_1"
+			(polyline
+				(pts
+					(xy 0 0) (xy 0 -1.27) (xy 1.27 -1.27) (xy 0 -2.54) (xy -1.27 -1.27) (xy 0 -1.27)
+				)
+				(stroke
+					(width 0)
+					(type default)
+				)
+				(fill
+					(type none)
+				)
+			)
+		)
+		(symbol "GND_1_1"
+			(pin power_in line
+				(at 0 0 270)
+				(length 0)
+				(name "~"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+				(number "1"
+					(effects
+						(font
+							(size 1.27 1.27)
+						)
+					)
+				)
+			)
+		)
+	)
+)
+(symbol (lib_id "Device:L") (at 17.78 53.34 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "43392dad-6f8b-5d4f-9973-0619fe6b985e")
+(property "Reference" "L101" (at 20.32 52.07 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 20.32 54.61 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Inductor_SMD:L_0402_1005Metric" (at 17.78 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 17.78 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "RF 匹配：取值照抄 xG28 参考设计（BRD4401C / AN），填值后再选料" (at 17.78 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 17.78 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "Murata LQW15AN 系列（值待定）" (at 17.78 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "b0ab275a-2b78-535c-9c91-9d5cbd2e8e48"))
+(pin "2" (uuid "989d54b2-6ee5-5571-ba47-d4fb6af4cf79"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "L101") (unit 1))))
+)
+(wire (pts (xy 17.78 49.53) (xy 17.78 46.99)) (stroke (width 0) (type default)) (uuid "8b66bf86-dd80-5a66-aca6-51bd0fdd6337"))
+(global_label "SUBG_O1" (shape passive) (at 17.78 46.99 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "80dade18-f2b7-53b7-9085-4c994a63aeec") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 17.78 46.99 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 17.78 57.15) (xy 17.78 59.69)) (stroke (width 0) (type default)) (uuid "0fd1c1c4-e2d2-5098-952a-19324726ee4f"))
+(global_label "RF_TX1" (shape passive) (at 17.78 59.69 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "6939a774-ccab-5882-9ea8-3f8d7594b1b2") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 17.78 59.69 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:C") (at 25.4 53.34 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "f8232695-4c72-5e6c-b1aa-6dcdb3393477")
+(property "Reference" "C101" (at 27.94 52.07 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 27.94 54.61 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 25.4 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 25.4 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "RF 匹配：取值照抄 xG28 参考设计（BRD4401C / AN），填值后再选料" (at 25.4 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 25.4 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "0402 C0G（值待定）" (at 25.4 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "2c916972-cbee-56bb-958a-f7cac28c5009"))
+(pin "2" (uuid "91b0ef71-0cea-57f5-a05c-b6ab8b4e77d5"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "C101") (unit 1))))
+)
+(wire (pts (xy 25.4 49.53) (xy 25.4 46.99)) (stroke (width 0) (type default)) (uuid "ace87998-9812-525c-b5d4-4c93ab64984f"))
+(global_label "RF_TX1" (shape passive) (at 25.4 46.99 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "0bfc4993-d917-5e8c-ac30-d485d0367d6a") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 25.4 46.99 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 25.4 57.15) (xy 25.4 59.69)) (stroke (width 0) (type default)) (uuid "383ef7e1-9a5c-5005-8b5a-89ead3484cff"))
+(symbol (lib_id "power:GND") (at 25.4 59.69 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "683229eb-ae73-50be-ae79-0e1dd6688000")
+(property "Reference" "#PWR091" (at 25.4 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Value" "GND" (at 25.4 63.5 0) (effects (font (size 1.27 1.27))))
+(property "Footprint" "" (at 25.4 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 25.4 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "" (at 25.4 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "fcebd22f-72fd-5799-824a-e30c9d5242ed"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "#PWR091") (unit 1))))
+)
+(symbol (lib_id "Device:L") (at 35.56 53.34 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "b957d280-69fb-5904-9124-61953b95063d")
+(property "Reference" "L102" (at 38.1 52.07 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 38.1 54.61 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Inductor_SMD:L_0402_1005Metric" (at 35.56 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 35.56 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "RF 匹配：取值照抄 xG28 参考设计（BRD4401C / AN），填值后再选料" (at 35.56 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 35.56 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "Murata LQW15AN 系列（值待定）" (at 35.56 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "88d69438-288a-5158-9078-6931a11c19c8"))
+(pin "2" (uuid "9dac3933-866d-5fc5-9b8d-632c6f016b0a"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "L102") (unit 1))))
+)
+(wire (pts (xy 35.56 49.53) (xy 35.56 46.99)) (stroke (width 0) (type default)) (uuid "16ce2eac-4aa0-532d-b531-8a025046aca2"))
+(global_label "RF_TX1" (shape passive) (at 35.56 46.99 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "97a87361-01c5-5dbf-b481-c2ac6c455631") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 35.56 46.99 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 35.56 57.15) (xy 35.56 59.69)) (stroke (width 0) (type default)) (uuid "e0d5d541-ff23-53fc-9b12-db48f27b7c2a"))
+(global_label "RF_TX2" (shape passive) (at 35.56 59.69 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "0305f300-37a3-53f2-ac1f-2049b02b1d4f") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 35.56 59.69 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:C") (at 45.72 53.34 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "adfe5968-8932-5e8c-b65a-cb85192b45de")
+(property "Reference" "C102" (at 48.26 52.07 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 48.26 54.61 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 45.72 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 45.72 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "RF 匹配：取值照抄 xG28 参考设计（BRD4401C / AN），填值后再选料" (at 45.72 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 45.72 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "0402 C0G（值待定）" (at 45.72 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "c968d713-f64f-5b38-b40d-0275dfd3aa75"))
+(pin "2" (uuid "0625d74f-bed6-583a-857a-4e7d2b91d058"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "C102") (unit 1))))
+)
+(wire (pts (xy 45.72 49.53) (xy 45.72 46.99)) (stroke (width 0) (type default)) (uuid "7d73ff68-07d2-5633-8c5a-384a98d716cb"))
+(global_label "RF_TX2" (shape passive) (at 45.72 46.99 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "a96b2a33-7873-5151-b1b5-4221e26f7daa") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 45.72 46.99 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 45.72 57.15) (xy 45.72 59.69)) (stroke (width 0) (type default)) (uuid "8bb9a702-2707-54f3-a572-1d8394fc641d"))
+(symbol (lib_id "power:GND") (at 45.72 59.69 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "e3a1de23-684a-5c3e-ba4c-77391f1179ce")
+(property "Reference" "#PWR092" (at 45.72 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Value" "GND" (at 45.72 63.5 0) (effects (font (size 1.27 1.27))))
+(property "Footprint" "" (at 45.72 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 45.72 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "" (at 45.72 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "9ad93638-b6ca-5cb2-aa60-be12585acf43"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "#PWR092") (unit 1))))
+)
+(symbol (lib_id "Device:L") (at 53.34 53.34 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "1739e6bd-4fa8-5127-8f87-14cf41d8e7f2")
+(property "Reference" "L103" (at 55.88 52.07 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 55.88 54.61 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Inductor_SMD:L_0402_1005Metric" (at 53.34 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 53.34 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "RF 匹配：取值照抄 xG28 参考设计（BRD4401C / AN），填值后再选料" (at 53.34 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 53.34 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "Murata LQW15AN 系列（值待定）" (at 53.34 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "897e2c0c-b37f-5093-8d1c-64a797aacbc7"))
+(pin "2" (uuid "9048e126-09b9-5bf4-9d79-9410c5825480"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "L103") (unit 1))))
+)
+(wire (pts (xy 53.34 49.53) (xy 53.34 46.99)) (stroke (width 0) (type default)) (uuid "beaf85bc-b821-5e3e-bbd8-bf231d25951d"))
+(global_label "RF_TX2" (shape passive) (at 53.34 46.99 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "2f9e86ce-b5bb-594c-9f7a-5af1deae9c7c") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 53.34 46.99 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 53.34 57.15) (xy 53.34 59.69)) (stroke (width 0) (type default)) (uuid "09fbe3b1-4526-5af3-beba-9ce7c721f92e"))
+(global_label "RF_SUBG" (shape passive) (at 53.34 59.69 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "2291e112-1938-5593-86dd-976b3f3233b3") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 53.34 59.69 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:C") (at 63.5 53.34 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "f6881df3-fc24-54ff-87b2-e7479bebaa1a")
+(property "Reference" "C103" (at 66.04 52.07 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 66.04 54.61 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 63.5 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 63.5 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "RF 匹配：取值照抄 xG28 参考设计（BRD4401C / AN），填值后再选料" (at 63.5 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 63.5 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "0402 C0G（值待定）" (at 63.5 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "9436d165-e8b5-5bb7-89eb-8723527bb06a"))
+(pin "2" (uuid "0941474f-d2bc-5036-b9d0-a294233e8822"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "C103") (unit 1))))
+)
+(wire (pts (xy 63.5 49.53) (xy 63.5 46.99)) (stroke (width 0) (type default)) (uuid "61b2ac7a-6a02-5dec-a939-2a30d12c843b"))
+(global_label "RF_SUBG" (shape passive) (at 63.5 46.99 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "f636b7e9-d1af-5ec5-bd0e-ed206d576d8a") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 63.5 46.99 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 63.5 57.15) (xy 63.5 59.69)) (stroke (width 0) (type default)) (uuid "92600644-fb4d-5193-8fc2-b9293d3dea90"))
+(symbol (lib_id "power:GND") (at 63.5 59.69 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "b66b7837-ccd3-5d2a-af5d-f413e301bb96")
+(property "Reference" "#PWR093" (at 63.5 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Value" "GND" (at 63.5 63.5 0) (effects (font (size 1.27 1.27))))
+(property "Footprint" "" (at 63.5 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 63.5 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "" (at 63.5 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "ed7b756d-ca8a-5472-8c5b-f55d1aa6647b"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "#PWR093") (unit 1))))
+)
+(symbol (lib_id "Device:C") (at 71.12 53.34 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "84a540d3-74b6-5c37-8888-51d6288c5034")
+(property "Reference" "C104" (at 73.66 52.07 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 73.66 54.61 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 71.12 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 71.12 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "RX 匹配，取值照抄参考设计" (at 71.12 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 71.12 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "0402 C0G（值待定）" (at 71.12 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "d8d12797-b9e3-5a92-b9cd-cb40b25f2073"))
+(pin "2" (uuid "3b8ca094-fa91-5254-af6a-193dbe929338"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "C104") (unit 1))))
+)
+(wire (pts (xy 71.12 49.53) (xy 71.12 46.99)) (stroke (width 0) (type default)) (uuid "a23bd22d-260c-5718-bacf-f8b95321d0e8"))
+(global_label "SUBG_I1" (shape passive) (at 71.12 46.99 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "757d7b6a-5b49-568d-a18a-655f098cd877") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 71.12 46.99 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 71.12 57.15) (xy 71.12 59.69)) (stroke (width 0) (type default)) (uuid "6215f9b7-d9a5-5503-8d4d-18dba7a21fa0"))
+(global_label "RF_RX1" (shape passive) (at 71.12 59.69 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "e5338766-a9d3-5bb7-8e2a-775307490896") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 71.12 59.69 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:L") (at 81.28 53.34 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "f229552c-ea97-5493-b993-312ac6f82122")
+(property "Reference" "L104" (at 83.82 52.07 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 83.82 54.61 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Inductor_SMD:L_0402_1005Metric" (at 81.28 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 81.28 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "RX 匹配，取值照抄参考设计" (at 81.28 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 81.28 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "Murata LQW15AN 系列（值待定）" (at 81.28 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "4bb464cb-8287-5199-915b-a8e3d2b9ea5d"))
+(pin "2" (uuid "5a0704bf-7e23-591e-abe6-3e6adb34c4d7"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "L104") (unit 1))))
+)
+(wire (pts (xy 81.28 49.53) (xy 81.28 46.99)) (stroke (width 0) (type default)) (uuid "ba006658-f84b-56e3-92ed-bc363d004b2b"))
+(global_label "RF_RX1" (shape passive) (at 81.28 46.99 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "3847b5b7-c9e2-51ee-802b-f14fd7996696") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 81.28 46.99 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 81.28 57.15) (xy 81.28 59.69)) (stroke (width 0) (type default)) (uuid "3d160c7e-e06e-5abd-8bce-8bddc383c639"))
+(symbol (lib_id "power:GND") (at 81.28 59.69 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "ed8e02b3-06df-5563-bfae-d05a486f60c8")
+(property "Reference" "#PWR094" (at 81.28 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Value" "GND" (at 81.28 63.5 0) (effects (font (size 1.27 1.27))))
+(property "Footprint" "" (at 81.28 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 81.28 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "" (at 81.28 59.69 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "d4042c3f-264f-5834-90eb-f61059c4c523"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "#PWR094") (unit 1))))
+)
+(symbol (lib_id "Device:L") (at 88.9 53.34 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "b04005ce-3575-590d-93b6-25177ca41b31")
+(property "Reference" "L105" (at 91.44 52.07 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 91.44 54.61 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Inductor_SMD:L_0402_1005Metric" (at 88.9 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 88.9 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "RX 匹配，取值照抄参考设计" (at 88.9 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 88.9 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "Murata LQW15AN 系列（值待定）" (at 88.9 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "d9f171bf-3e77-533d-b756-44cb59aa3545"))
+(pin "2" (uuid "1f672701-4ab9-5ba6-a6c0-6152b979fa67"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "L105") (unit 1))))
+)
+(wire (pts (xy 88.9 49.53) (xy 88.9 46.99)) (stroke (width 0) (type default)) (uuid "696e4260-6571-58f4-b535-d61ed46931b9"))
+(global_label "RF_RX1" (shape passive) (at 88.9 46.99 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "bcbebd2b-b981-57f7-b390-1934641bd430") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 88.9 46.99 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 88.9 57.15) (xy 88.9 59.69)) (stroke (width 0) (type default)) (uuid "a8001381-1999-5cce-aa39-6279845d6f22"))
+(global_label "RF_SUBG" (shape passive) (at 88.9 59.69 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "48144bf6-da4d-5bdd-80c5-3364d06f1ee3") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 88.9 59.69 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:C") (at 99.06 53.34 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "1bf2b655-3ba2-5cb0-a8a8-1ead57f40045")
+(property "Reference" "C105" (at 101.6 52.07 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 101.6 54.61 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 99.06 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 99.06 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "隔直，取值照抄参考设计" (at 99.06 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 99.06 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "0402 C0G（值待定）" (at 99.06 53.34 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "a2783200-3b4f-5f3e-8e41-d20771be6849"))
+(pin "2" (uuid "92370342-9c17-5838-86ca-0bc9733b04ad"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "C105") (unit 1))))
+)
+(wire (pts (xy 99.06 49.53) (xy 99.06 46.99)) (stroke (width 0) (type default)) (uuid "ed41b4e9-57df-542e-a372-8313c038f80e"))
+(global_label "RF_SUBG" (shape passive) (at 99.06 46.99 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "d0c5fafe-3a74-5bd7-8167-8a8a39318d24") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 99.06 46.99 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 99.06 57.15) (xy 99.06 59.69)) (stroke (width 0) (type default)) (uuid "fa927853-6358-5f12-8a8e-bf913dcc535d"))
+(global_label "RF_PI1" (shape passive) (at 99.06 59.69 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "1ac88610-0a5c-5405-a52e-fa6bd69784e1") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 99.06 59.69 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:C") (at 17.78 96.52 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp yes)
+(uuid "b9f2340e-b005-50c5-adba-4df28f2957e9")
+(property "Reference" "C106" (at 20.32 95.25 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "DNP" (at 20.32 97.79 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 17.78 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 17.78 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "π 型微调位，默认不贴" (at 17.78 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 17.78 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "" (at 17.78 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "fcbf1e79-0791-5972-88f8-47e85261c0c2"))
+(pin "2" (uuid "e758512a-c0aa-51ac-83b6-42df8d7f5119"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "C106") (unit 1))))
+)
+(wire (pts (xy 17.78 92.71) (xy 17.78 90.17)) (stroke (width 0) (type default)) (uuid "08e4fc5a-753e-569e-b26a-7a3d28b2b0c4"))
+(global_label "RF_PI1" (shape passive) (at 17.78 90.17 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "960bdc8b-4866-516e-a784-82e24b848278") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 17.78 90.17 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 17.78 100.33) (xy 17.78 102.87)) (stroke (width 0) (type default)) (uuid "a61f4d96-f00c-593c-8d59-8eb18cbea7df"))
+(symbol (lib_id "power:GND") (at 17.78 102.87 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "99db8784-1d4d-56cc-9d9b-9c3781b8392a")
+(property "Reference" "#PWR095" (at 17.78 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Value" "GND" (at 17.78 106.68 0) (effects (font (size 1.27 1.27))))
+(property "Footprint" "" (at 17.78 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 17.78 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "" (at 17.78 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "0af103ec-91ea-5a1b-90ff-1294e428b003"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "#PWR095") (unit 1))))
+)
+(symbol (lib_id "Device:R") (at 25.4 96.52 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "650afb02-b679-548a-946d-42f58ae19ab2")
+(property "Reference" "L106" (at 27.94 95.25 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "0R" (at 27.94 97.79 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 25.4 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 25.4 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "π 型串联位，默认 0R" (at 25.4 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "C17168" (at 25.4 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "0402WGF0000TCE" (at 25.4 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "ae8e8dc4-e61e-58ba-ad7f-7bd3a9350cbd"))
+(pin "2" (uuid "85038d99-3fb5-5ac1-b164-b64000043f34"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "L106") (unit 1))))
+)
+(wire (pts (xy 25.4 92.71) (xy 25.4 90.17)) (stroke (width 0) (type default)) (uuid "e3801670-7418-5d5d-ae0d-83d1b3d8740d"))
+(global_label "RF_PI1" (shape passive) (at 25.4 90.17 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "27e7e7ee-d022-5f40-a6ed-de8364dcf080") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 25.4 90.17 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 25.4 100.33) (xy 25.4 102.87)) (stroke (width 0) (type default)) (uuid "4c4941b1-abb6-504b-b854-20e337cd6426"))
+(global_label "RF_ANT" (shape passive) (at 25.4 102.87 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "b8e7e7e3-b91e-55eb-8e29-614253540eb9") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 25.4 102.87 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:C") (at 35.56 96.52 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp yes)
+(uuid "1bc6c301-2dd3-5ae5-aa50-026642051d42")
+(property "Reference" "C107" (at 38.1 95.25 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "DNP" (at 38.1 97.79 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 35.56 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 35.56 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "π 型微调位，默认不贴" (at 35.56 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 35.56 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "" (at 35.56 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "cd23e9ce-3cfa-5245-bf74-a1e203d7ad14"))
+(pin "2" (uuid "14f9d0d2-eec1-5fcc-b9ff-3ea21671c88a"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "C107") (unit 1))))
+)
+(wire (pts (xy 35.56 92.71) (xy 35.56 90.17)) (stroke (width 0) (type default)) (uuid "8968a3a9-4c38-52ec-834e-4da4b4950619"))
+(global_label "RF_ANT" (shape passive) (at 35.56 90.17 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "97375ee8-7218-5b5f-bed9-196dadc2cbfa") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 35.56 90.17 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 35.56 100.33) (xy 35.56 102.87)) (stroke (width 0) (type default)) (uuid "573f7522-fe75-59ab-a244-a37f3dc96aac"))
+(symbol (lib_id "power:GND") (at 35.56 102.87 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "4e74210e-357f-5786-99ba-67cc5cd493e3")
+(property "Reference" "#PWR096" (at 35.56 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Value" "GND" (at 35.56 106.68 0) (effects (font (size 1.27 1.27))))
+(property "Footprint" "" (at 35.56 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 35.56 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "" (at 35.56 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "6c7a63cd-1290-55cc-9254-4d7632d4c7a1"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "#PWR096") (unit 1))))
+)
+(symbol (lib_id "Device:R") (at 45.72 96.52 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "41686c60-04dc-571d-83fa-82be5b3c2c77")
+(property "Reference" "R101" (at 48.26 95.25 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "0R" (at 48.26 97.79 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 45.72 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 45.72 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "选弹簧天线（默认）" (at 45.72 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "C17168" (at 45.72 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "0402WGF0000TCE" (at 45.72 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "47c07de6-c933-539b-9920-b49cc5722834"))
+(pin "2" (uuid "b966e913-8003-59bd-88b2-59c1af897bab"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "R101") (unit 1))))
+)
+(wire (pts (xy 45.72 92.71) (xy 45.72 90.17)) (stroke (width 0) (type default)) (uuid "5edf3499-255c-5806-814a-72987bbc8906"))
+(global_label "RF_ANT" (shape passive) (at 45.72 90.17 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "0e1f43b1-c480-5f3e-b242-0afcbdad5211") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 45.72 90.17 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 45.72 100.33) (xy 45.72 102.87)) (stroke (width 0) (type default)) (uuid "7e6bc438-da05-512c-8604-dc3b544721e1"))
+(global_label "ANT_SPRING" (shape passive) (at 45.72 102.87 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "b3361d91-d8f1-5a33-b2ae-23de6469c379") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 45.72 102.87 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:R") (at 53.34 96.52 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp yes)
+(uuid "f2b02026-2540-5b18-aec4-78427d3c4d37")
+(property "Reference" "R102" (at 55.88 95.25 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "0R" (at 55.88 97.79 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Resistor_SMD:R_0402_1005Metric" (at 53.34 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 53.34 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "选 IPEX（与 R101 二选一）" (at 53.34 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "C17168" (at 53.34 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "0402WGF0000TCE" (at 53.34 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "96670b3a-8b07-5b47-a939-ab46e823efd1"))
+(pin "2" (uuid "92647ed4-475e-5264-b468-2c5f189a9b3f"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "R102") (unit 1))))
+)
+(wire (pts (xy 53.34 92.71) (xy 53.34 90.17)) (stroke (width 0) (type default)) (uuid "3c612ec0-ebbd-5418-842f-ac4a55c0eaad"))
+(global_label "RF_ANT" (shape passive) (at 53.34 90.17 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "8c6ca02e-82ee-512d-ba50-2549094a6cb1") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 53.34 90.17 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 53.34 100.33) (xy 53.34 102.87)) (stroke (width 0) (type default)) (uuid "00862de0-4afd-55c6-a8ce-161d31963f20"))
+(global_label "ANT_IPEX" (shape passive) (at 53.34 102.87 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "bc7fd5ec-713c-56ce-91b1-afc6531f4c00") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 53.34 102.87 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:Antenna") (at 63.5 76.2 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "29e5052f-1651-532b-87d1-a426cadf88e7")
+(property "Reference" "ANT1" (at 66.04 74.93 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "433MHz spring" (at 66.04 77.47 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "smartlock:Spring_Antenna_433_THT" (at 63.5 76.2 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 63.5 76.2 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "弹簧天线焊盘，板上沿" (at 63.5 76.2 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 63.5 76.2 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "433 MHz 螺旋弹簧天线（手焊）" (at 63.5 76.2 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "f56a9ccb-d24d-5b6c-98c7-e71647080e2e"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "ANT1") (unit 1))))
+)
+(wire (pts (xy 63.5 81.28) (xy 63.5 83.82)) (stroke (width 0) (type default)) (uuid "fbbe77dd-b217-522d-a3bf-bfce97b1debb"))
+(global_label "ANT_SPRING" (shape passive) (at 63.5 83.82 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "a29d709e-0f63-5b37-ad97-2e3da69bbca3") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 63.5 83.82 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Connector:Conn_Coaxial") (at 91.44 81.28 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp yes)
+(uuid "df91e864-02b1-5651-b2ce-f1b1ec991479")
+(property "Reference" "J8" (at 93.98 80.01 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "IPEX" (at 93.98 82.55 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Connector_Coaxial:U.FL_Hirose_U.FL-R-SMT-1_Vertical" (at 91.44 81.28 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 91.44 81.28 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "IPEX/U.FL 座（预留）" (at 91.44 81.28 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "C496552" (at 91.44 81.28 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "BWIPX-1-001E" (at 91.44 81.28 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "d0962b59-01d9-5fca-b867-756410fb9740"))
+(pin "2" (uuid "6b8097d7-1df4-5ef2-9abc-180abeb89da4"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "J8") (unit 1))))
+)
+(wire (pts (xy 86.36 81.28) (xy 83.82 81.28)) (stroke (width 0) (type default)) (uuid "08ada02b-cd2c-5227-b623-b0f0ad5a31e9"))
+(global_label "ANT_IPEX" (shape passive) (at 83.82 81.28 180) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "2a81785d-87a5-55a3-8c65-0a5267d84db3") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 83.82 81.28 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(wire (pts (xy 91.44 86.36) (xy 91.44 88.9)) (stroke (width 0) (type default)) (uuid "8b68f86b-0648-55e4-99d6-042374ec46d5"))
+(symbol (lib_id "power:GND") (at 91.44 88.9 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "cdbbdecf-3aea-5960-b669-caf6b4ddf2b3")
+(property "Reference" "#PWR097" (at 91.44 88.9 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Value" "GND" (at 91.44 92.71 0) (effects (font (size 1.27 1.27))))
+(property "Footprint" "" (at 91.44 88.9 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 91.44 88.9 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "" (at 91.44 88.9 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "dec2cb4a-f701-5566-adc9-59f26aa06f6c"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "#PWR097") (unit 1))))
+)
+(symbol (lib_id "Device:L") (at 101.6 99.06 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "f7aaaf1a-dd24-52c7-b8df-b65adffbbe31")
+(property "Reference" "L201" (at 104.14 97.79 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 104.14 100.33 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Inductor_SMD:L_0402_1005Metric" (at 101.6 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 101.6 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "2.4 GHz 匹配，整块照抄 BRD4401C" (at 101.6 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 101.6 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "Murata LQW15AN 系列（值待定）" (at 101.6 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "dc377119-d47d-52f5-a0ae-9fce4acae9b8"))
+(pin "2" (uuid "a1f6dced-b129-577b-b5d2-c51870b5fbf7"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "L201") (unit 1))))
+)
+(wire (pts (xy 101.6 95.25) (xy 101.6 92.71)) (stroke (width 0) (type default)) (uuid "9ade9596-1198-58fa-b4b9-460c1b831d19"))
+(global_label "RF2G4_O0" (shape passive) (at 101.6 92.71 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "1fa08724-1f28-579e-b5e8-668a2d9180a7") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 101.6 92.71 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 101.6 102.87) (xy 101.6 105.41)) (stroke (width 0) (type default)) (uuid "00683309-a26b-5113-9524-d60c788e0a1d"))
+(global_label "RF24_N" (shape passive) (at 101.6 105.41 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "59ff0abd-1228-55bf-a108-94159a3ae1ae") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 101.6 105.41 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:L") (at 109.22 99.06 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "c9b9deb2-68c6-5839-bd42-980117bb382e")
+(property "Reference" "L202" (at 111.76 97.79 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 111.76 100.33 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Inductor_SMD:L_0402_1005Metric" (at 109.22 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 109.22 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "2.4 GHz 匹配，整块照抄 BRD4401C" (at 109.22 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 109.22 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "Murata LQW15AN 系列（值待定）" (at 109.22 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "b96492c1-3194-5022-a021-60a6724bb853"))
+(pin "2" (uuid "3f1ee70b-84cd-5a73-86ed-3fb104b61a55"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "L202") (unit 1))))
+)
+(wire (pts (xy 109.22 95.25) (xy 109.22 92.71)) (stroke (width 0) (type default)) (uuid "e930260a-e276-54f7-8e16-c92082a34321"))
+(global_label "RF2G4_I0" (shape passive) (at 109.22 92.71 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "6920b564-7607-5417-a478-7b97d4aa7d1d") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 109.22 92.71 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 109.22 102.87) (xy 109.22 105.41)) (stroke (width 0) (type default)) (uuid "af72bc18-8714-5d4d-9426-6f5f692da4a7"))
+(global_label "RF24_N" (shape passive) (at 109.22 105.41 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "2d397002-c868-53ee-a9e1-50a4f0157abc") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 109.22 105.41 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:C") (at 119.38 96.52 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "1cd3a1f0-2770-5ae3-b242-6f50542bb353")
+(property "Reference" "C201" (at 121.92 95.25 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 121.92 97.79 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 119.38 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 119.38 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "2.4 GHz 匹配，整块照抄 BRD4401C" (at 119.38 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 119.38 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "0402 C0G（值待定）" (at 119.38 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "ca7410d7-9d28-5d6c-a4b1-5e42fd17ed54"))
+(pin "2" (uuid "e6ad5ad4-196c-5822-8fcf-32934548e557"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "C201") (unit 1))))
+)
+(wire (pts (xy 119.38 92.71) (xy 119.38 90.17)) (stroke (width 0) (type default)) (uuid "35cf00db-4f0c-544c-b17b-0fa642a2ce0a"))
+(global_label "RF24_N" (shape passive) (at 119.38 90.17 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "3acd1538-8f90-57f9-b56a-964ce9a19d06") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 119.38 90.17 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 119.38 100.33) (xy 119.38 102.87)) (stroke (width 0) (type default)) (uuid "c9cb10be-4afb-5042-ae23-7ea7b58b6b52"))
+(symbol (lib_id "power:GND") (at 119.38 102.87 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "def17f67-0ca7-5aa6-b126-45eff0c14ee7")
+(property "Reference" "#PWR098" (at 119.38 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Value" "GND" (at 119.38 106.68 0) (effects (font (size 1.27 1.27))))
+(property "Footprint" "" (at 119.38 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 119.38 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "" (at 119.38 102.87 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "4c030a8b-1e8d-5f34-9c7b-d336e069be14"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "#PWR098") (unit 1))))
+)
+(symbol (lib_id "Device:C") (at 127 96.52 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp no)
+(uuid "99af51d6-fc65-57d4-9eda-dd669a2686fa")
+(property "Reference" "C202" (at 129.54 95.25 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "TBD" (at 129.54 97.79 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 127 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 127 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "2.4 GHz 匹配，整块照抄 BRD4401C" (at 127 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 127 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "0402 C0G（值待定）" (at 127 96.52 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "40609fd2-9593-506e-871e-e5cef1cd985d"))
+(pin "2" (uuid "caeb98df-68f0-5dfb-8d17-cdf3f3f02741"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "C202") (unit 1))))
+)
+(wire (pts (xy 127 92.71) (xy 127 90.17)) (stroke (width 0) (type default)) (uuid "cfacf75b-de24-563c-a668-a0a8fb6ee03e"))
+(global_label "RF24_N" (shape passive) (at 127 90.17 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "d6ae1c56-b17e-5f07-be6b-51b7297ae919") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 127 90.17 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 127 100.33) (xy 127 102.87)) (stroke (width 0) (type default)) (uuid "f7af9ef1-d18f-5040-8c04-2610a7b06b1d"))
+(global_label "RF24_ANT" (shape passive) (at 127 102.87 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "ca7471e7-a195-5ccb-996b-3f79e2cb8a42") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 127 102.87 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(symbol (lib_id "Device:C") (at 137.16 99.06 0) (unit 1)
+(exclude_from_sim no) (in_bom yes) (on_board yes) (dnp yes)
+(uuid "af1575eb-cc42-5927-bf67-3f5f62dae92f")
+(property "Reference" "C203" (at 139.7 97.79 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "DNP" (at 139.7 100.33 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "Capacitor_SMD:C_0402_1005Metric" (at 137.16 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 137.16 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "天线微调位，默认不贴" (at 137.16 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 137.16 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "" (at 137.16 99.06 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "ce59cfa7-92cd-559a-9800-03d4762810e3"))
+(pin "2" (uuid "1e36bc44-f097-50b7-a719-87715877615a"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "C203") (unit 1))))
+)
+(wire (pts (xy 137.16 95.25) (xy 137.16 92.71)) (stroke (width 0) (type default)) (uuid "bc97348f-9aff-5f29-a74e-15183d8da8e9"))
+(global_label "RF24_ANT" (shape passive) (at 137.16 92.71 90) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify left)) (uuid "aa127c5f-fe65-5cb0-81c8-03c02da42ea0") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 137.16 92.71 0) (effects (font (size 1.27 1.27)) (justify left) (hide yes))))
+(wire (pts (xy 137.16 102.87) (xy 137.16 105.41)) (stroke (width 0) (type default)) (uuid "9a96ce45-d233-51e0-83b6-2ace70b7742d"))
+(symbol (lib_id "power:GND") (at 137.16 105.41 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "b6481e24-4fcd-5466-977e-2fd77feb5ab6")
+(property "Reference" "#PWR099" (at 137.16 105.41 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Value" "GND" (at 137.16 109.22 0) (effects (font (size 1.27 1.27))))
+(property "Footprint" "" (at 137.16 105.41 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 137.16 105.41 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "" (at 137.16 105.41 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "958a0269-8680-5a9a-b9ca-7e2d9afc2d84"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "#PWR099") (unit 1))))
+)
+(symbol (lib_id "Device:Antenna_Shield") (at 144.78 76.2 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "c645dae2-c5fa-5eb1-b427-557e808289f4")
+(property "Reference" "ANT2" (at 147.32 74.93 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Value" "2.4GHz PCB IFA" (at 147.32 77.47 0) (effects (font (size 1.27 1.27)) (justify left)))
+(property "Footprint" "RF_Antenna:Texas_SWRA117D_2.4GHz_Left" (at 144.78 76.2 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 144.78 76.2 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "PCB 倒 F 天线（铜皮，不是器件）；形状建议照抄 BRD4401C" (at 144.78 76.2 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "LCSC" "" (at 144.78 76.2 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "MPN" "" (at 144.78 76.2 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "7f7e1e70-8403-5017-9048-731bb788e6c7"))
+(pin "2" (uuid "a1c5d8f7-c785-5f0d-a98a-c24a80c9f6a4"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "ANT2") (unit 1))))
+)
+(wire (pts (xy 144.78 81.28) (xy 144.78 83.82)) (stroke (width 0) (type default)) (uuid "5f82bd12-396d-5f67-a905-698eab3c8a45"))
+(global_label "RF24_ANT" (shape passive) (at 144.78 83.82 270) (fields_autoplaced yes) (effects (font (size 1.27 1.27)) (justify right)) (uuid "35be5696-3cb6-594d-9a8b-a3c08bb92349") (property "Intersheetrefs" "${INTERSHEET_REFS}" (at 144.78 83.82 0) (effects (font (size 1.27 1.27)) (justify right) (hide yes))))
+(wire (pts (xy 147.32 81.28) (xy 147.32 83.82)) (stroke (width 0) (type default)) (uuid "7e0581b2-a9a1-57bd-9e8c-28bcdefec51f"))
+(symbol (lib_id "power:GND") (at 147.32 83.82 0) (unit 1)
+(exclude_from_sim no) (in_bom no) (on_board yes) (dnp no)
+(uuid "60adf111-37ed-5882-b71f-02284186be44")
+(property "Reference" "#PWR100" (at 147.32 83.82 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Value" "GND" (at 147.32 87.63 0) (effects (font (size 1.27 1.27))))
+(property "Footprint" "" (at 147.32 83.82 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Datasheet" "" (at 147.32 83.82 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(property "Description" "" (at 147.32 83.82 0) (effects (font (size 1.27 1.27)) (hide yes)))
+(pin "1" (uuid "2592d4e9-583e-56ba-a5e6-98d094be2229"))
+(instances (project "smart-lock-mainboard" (path "/4823f015-241f-5042-a51b-588f2fbafc4b/bc4a9052-4317-5dc7-b019-55b53bf980cc" (reference "#PWR100") (unit 1))))
+)
+(text "!! 本页 TBD 器件的结构和取值必须照抄 Silicon Labs xG28 参考设计（BRD4401C 原理图 + 433 MHz 匹配应用笔记），\n   本工程生成时无法下载官方设计文件，拓扑为占位：TX 三阶 LC 低通、RX L 型匹配、天线端 π 型（C106/L106/C107）。\n   拿到参考设计后按它增删位置、填值，再在 BOM 中补 LCSC 编号。\nR101/R102 二选一：默认贴 R101 接弹簧天线 ANT1；改用 IPEX（J8）时贴 R102、拆 R101。\n布线：50 Ω 共面波导，4 层板第 2 层完整地，两侧地过孔；天线在板上沿，远离电池仓和电机 >=15 mm。" (exclude_from_sim no) (at 15.24 12.7 0) (effects (font (size 1.5 1.5)) (justify left top)) (uuid "461e4ecf-889c-5520-a6c7-f78fe65ef60d"))
+)

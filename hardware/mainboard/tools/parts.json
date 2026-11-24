@@ -1,0 +1,2363 @@
+[
+ {
+  "ref": "J1",
+  "value": "BAT 4xAA/2S",
+  "footprint": "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
+  "lcsc": "C295747",
+  "mpn": "S2B-PH-SM4-TB(LF)(SN)",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/9695bb28-d66d-546f-99a7-a519d5366d57",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "BAT",
+   "2": "GND",
+   "MP": null
+  }
+ },
+ {
+  "ref": "Q1",
+  "value": "AO3401A",
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C15127",
+  "mpn": "AO3401A",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/8a29c936-dab2-5e4e-9ba2-76d4decbbdd9",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "REVPOL_G",
+   "2": "VBAT_P",
+   "3": "BAT"
+  }
+ },
+ {
+  "ref": "R1",
+  "value": "100k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/9874caad-283d-5b3e-a356-e1d65c53e075",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "REVPOL_G",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "D1",
+  "value": "BZT52C10",
+  "footprint": "Diode_SMD:D_SOD-123",
+  "lcsc": "C155227",
+  "mpn": "BZT52C10-7-F",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/2d12c89e-67de-5131-aca3-8fb9496b4a14",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "REVPOL_G"
+  }
+ },
+ {
+  "ref": "J2",
+  "value": "USB-C 供电",
+  "footprint": "Connector_USB:USB_C_Receptacle_GCT_USB4125-xx-x_6P_TopMnt_Horizontal",
+  "lcsc": "C3151650",
+  "mpn": "USB4125-GF-A",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/5bf79a0f-45a4-5804-854b-0334ac772290",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "A9": "USB_VBUS",
+   "B9": "USB_VBUS",
+   "A12": "GND",
+   "B12": "GND",
+   "S1": "GND",
+   "A5": "CC1",
+   "B5": "CC2"
+  }
+ },
+ {
+  "ref": "R2",
+  "value": "5.1k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25905",
+  "mpn": "0402WGF5101TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/d5e5118e-490f-5f5c-8c79-823b9d267138",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "CC1",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "R3",
+  "value": "5.1k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25905",
+  "mpn": "0402WGF5101TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/9ef909bd-3412-5108-ae5c-77c426de3ea4",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "CC2",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "D2",
+  "value": "SMF5.0A",
+  "footprint": "Diode_SMD:D_SMF",
+  "lcsc": "C669056",
+  "mpn": "SMF5.0A-TP",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/31c509b5-8c1c-5a52-ad92-247d8b13172a",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "USB_VBUS",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "D3",
+  "value": "B5819W",
+  "footprint": "Diode_SMD:D_SOD-123",
+  "lcsc": "C779676",
+  "mpn": "B5819W-SL",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/8c6c1f91-d5ae-54a6-9ae3-3ee3bfcc130a",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "USB_VBUS"
+  }
+ },
+ {
+  "ref": "C1",
+  "value": "220uF/16V",
+  "footprint": "Capacitor_SMD:CP_Elec_6.3x7.7",
+  "lcsc": "C3342",
+  "mpn": "RVT1C221M0607",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/9664eb15-25f6-5c6d-89ff-8093153090d6",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C2",
+  "value": "10uF/25V",
+  "footprint": "Capacitor_SMD:C_0805_2012Metric",
+  "lcsc": "C15850",
+  "mpn": "CL21A106KAYNNNE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/121c5e8d-3a12-56fd-b197-54035a69da15",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C3",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/5936db40-45ca-57e0-9ecf-6e105b4267e6",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "U2",
+  "value": "TPS629210DRLR",
+  "footprint": "Package_TO_SOT_SMD:SOT-583-8",
+  "lcsc": "C5219301",
+  "mpn": "TPS629210DRLR",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/b6d53f29-2cd2-5ab8-84f8-15687da2ef19",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "6": "VBAT_P",
+   "7": "VBAT_P",
+   "8": "SCONF_3V3",
+   "5": "GND",
+   "4": "SW_3V3",
+   "3": "3V3",
+   "1": "FB_3V3",
+   "2": null
+  }
+ },
+ {
+  "ref": "C4",
+  "value": "10uF/25V",
+  "footprint": "Capacitor_SMD:C_0805_2012Metric",
+  "lcsc": "C15850",
+  "mpn": "CL21A106KAYNNNE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/4cf84d2e-7196-5a56-9a82-ab412f6fdd5d",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "L1",
+  "value": "2.2uH",
+  "footprint": "Inductor_SMD:L_Sunlord_SWPA4020S",
+  "lcsc": "C83423",
+  "mpn": "SWPA4020S2R2MT",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/e4ed3c1a-f7fd-5f62-a90d-5f5db8f59180",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "SW_3V3",
+   "2": "3V3"
+  }
+ },
+ {
+  "ref": "R4",
+  "value": "1M",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C26083",
+  "mpn": "0402WGF1004TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/e0e943eb-21aa-5041-b0de-93d70b93295c",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "3V3",
+   "2": "FB_3V3"
+  }
+ },
+ {
+  "ref": "R5",
+  "value": "221k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C26998",
+  "mpn": "0402WGF2213TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/e2b2b177-e569-5c27-a728-a44bcd2409a9",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "FB_3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "R6",
+  "value": "0R",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C17168",
+  "mpn": "0402WGF0000TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/c08ea1c1-c99e-56b1-a8d3-79e711944aaf",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "SCONF_3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C5",
+  "value": "22uF/25V",
+  "footprint": "Capacitor_SMD:C_0805_2012Metric",
+  "lcsc": "C45783",
+  "mpn": "CL21A226MAQNNNE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/9c152498-33dd-5fd6-a40b-1aba9b5b08c6",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C6",
+  "value": "22uF/25V",
+  "footprint": "Capacitor_SMD:C_0805_2012Metric",
+  "lcsc": "C45783",
+  "mpn": "CL21A226MAQNNNE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/69c16e4d-cc6f-520a-954a-3fd12ad1e0cd",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C7",
+  "value": "47uF/10V",
+  "footprint": "Capacitor_Tantalum_SMD:CP_EIA-3528-21_Kemet-B",
+  "lcsc": "C22036",
+  "mpn": "TAJB476K010RNJ",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/f540c7dd-af37-50a1-ac60-fd1b0ef067db",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "U6",
+  "value": "TPS22917DBVR",
+  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "lcsc": "C2681320",
+  "mpn": "TPS22917DBVR",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/3a12c3f0-019c-5b3a-bc8d-1728588257b4",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "3V3",
+   "2": "GND",
+   "3": "NFC_PWR_EN",
+   "4": "CT_NFC",
+   "5": null,
+   "6": "3V3_NFC"
+  }
+ },
+ {
+  "ref": "C8",
+  "value": "1nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C14442",
+  "mpn": "CL05B102KB5NNNC",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/a3cb81f6-4bd5-5bb0-aba7-75db6d8660f6",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "CT_NFC",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C9",
+  "value": "1uF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C52923",
+  "mpn": "CL05A105KA5NQNC",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/e4b2b72b-bbab-5484-aebc-e9501b6dbad1",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "3V3_NFC",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "R7",
+  "value": "100k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/4f570ace-fa13-529a-b71a-7bf46b2d58d1",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "NFC_PWR_EN",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "U7",
+  "value": "TPS22917DBVR",
+  "footprint": "Package_TO_SOT_SMD:SOT-23-6",
+  "lcsc": "C2681320",
+  "mpn": "TPS22917DBVR",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/cf25d9c7-648f-5e3a-886b-713b04884ae8",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "3V3",
+   "2": "GND",
+   "3": "FP_PWR_EN",
+   "4": "CT_FP",
+   "5": null,
+   "6": "3V3_FP"
+  }
+ },
+ {
+  "ref": "C10",
+  "value": "1nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C14442",
+  "mpn": "CL05B102KB5NNNC",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/1251e362-2558-52ed-9e0a-36e3b70794b9",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "CT_FP",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C11",
+  "value": "1uF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C52923",
+  "mpn": "CL05A105KA5NQNC",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/a820aa80-2938-5ea3-9c4f-5e5563f9b838",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "3V3_FP",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "R8",
+  "value": "100k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/7ddf36da-6d98-5dc9-bf2b-e70a57441f65",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "FP_PWR_EN",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "U8",
+  "value": "TPS62933DRLR",
+  "footprint": "Package_TO_SOT_SMD:SOT-583-8",
+  "lcsc": "C3200405",
+  "mpn": "TPS62933DRLR",
+  "dnp": true,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/b73af73e-ddf6-58d0-8924-139ccd097d3a",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": null,
+   "2": "FACE_PWR_EN",
+   "3": "VBAT_P",
+   "4": "GND",
+   "5": "SW_5V",
+   "6": "BST_5V",
+   "7": "SS_5V",
+   "8": "FB_5V"
+  }
+ },
+ {
+  "ref": "C12",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": true,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/9e3e01bd-8b8a-55b7-996c-5b99614f3c6b",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "BST_5V",
+   "2": "SW_5V"
+  }
+ },
+ {
+  "ref": "L2",
+  "value": "4.7uH",
+  "footprint": "Inductor_SMD:L_Sunlord_SWPA6045S",
+  "lcsc": "C78804",
+  "mpn": "SWPA6045S4R7MT",
+  "dnp": true,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/bd19a239-1112-54cc-8b08-ddcafa5f5dc4",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "SW_5V",
+   "2": "5V_FACE"
+  }
+ },
+ {
+  "ref": "R9",
+  "value": "100k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "dnp": true,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/19fe7403-463b-5469-adf9-956837091dcc",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "5V_FACE",
+   "2": "FB_5V"
+  }
+ },
+ {
+  "ref": "R10",
+  "value": "19.1k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C52036",
+  "mpn": "0402WGF1912TCE",
+  "dnp": true,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/4810750d-5766-5a09-a2ca-062ba0367d9d",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "FB_5V",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C13",
+  "value": "22uF/25V",
+  "footprint": "Capacitor_SMD:C_0805_2012Metric",
+  "lcsc": "C45783",
+  "mpn": "CL21A226MAQNNNE",
+  "dnp": true,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/0854cb5f-8c11-5799-9c40-f7912ae224a0",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "5V_FACE",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C14",
+  "value": "22uF/25V",
+  "footprint": "Capacitor_SMD:C_0805_2012Metric",
+  "lcsc": "C45783",
+  "mpn": "CL21A226MAQNNNE",
+  "dnp": true,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/43903a5f-b440-5631-9a11-19affae5bdd5",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "5V_FACE",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C15",
+  "value": "10uF/25V",
+  "footprint": "Capacitor_SMD:C_0805_2012Metric",
+  "lcsc": "C15850",
+  "mpn": "CL21A106KAYNNNE",
+  "dnp": true,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/f3b3c3a4-3222-58d2-9203-5e094a911c4d",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C16",
+  "value": "10nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C15195",
+  "mpn": "CL05B103KB5NNNC",
+  "dnp": true,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/c0aa4f1b-8670-5756-baf0-8bf03ce7f819",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "SS_5V",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "R11",
+  "value": "100k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/4cd3be8e-9821-500b-9f57-1a0292b5b097",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "FACE_PWR_EN",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "Q2",
+  "value": "AO3401A",
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C15127",
+  "mpn": "AO3401A",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/8c20a655-f17e-5ceb-ae8a-c2fc716e319c",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VDIV_G",
+   "2": "VBAT_P",
+   "3": "VDIV_HI"
+  }
+ },
+ {
+  "ref": "R12",
+  "value": "100k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/ee8788c5-eb55-5463-bcf4-b6abd000fcd1",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "VDIV_G"
+  }
+ },
+ {
+  "ref": "Q3",
+  "value": "2N7002",
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C8545",
+  "mpn": "2N7002",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/a8bfd437-e094-5c38-a198-0e8c17f2be82",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_EN",
+   "2": "GND",
+   "3": "VDIV_G"
+  }
+ },
+ {
+  "ref": "R13",
+  "value": "100k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/5da38a15-c94a-5eef-ad4c-526f22c2fd05",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_EN",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "R14",
+  "value": "1M",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C26083",
+  "mpn": "0402WGF1004TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/f222ef3d-61e3-5bee-93b8-85c9626d94be",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VDIV_HI",
+   "2": "VBAT_ADC"
+  }
+ },
+ {
+  "ref": "R15",
+  "value": "330k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25778",
+  "mpn": "0402WGF3303TCE",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/5f0e0bce-1be8-5d5c-83a9-4d351c69f8e9",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_ADC",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C17",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/4116a84f-8ea4-558c-a7a9-3cea44ebb309",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_ADC",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "TP1",
+  "value": "3V3",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/85841b81-8fdf-5af9-b01c-b17fa1de5f48",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "3V3"
+  }
+ },
+ {
+  "ref": "TP2",
+  "value": "VBAT_P",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/689cdd34-1612-56c8-8ebd-c591c2fac2e8",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "VBAT_P"
+  }
+ },
+ {
+  "ref": "TP3",
+  "value": "GND",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/08827e35-2171-5d4c-a882-c0814913dd9a/fbf3e98a-a823-50ad-8f17-d7103e145e98",
+  "sheet": "power.kicad_sch",
+  "sheetname": "电源",
+  "pins": {
+   "1": "GND"
+  }
+ },
+ {
+  "ref": "U1",
+  "value": "EFR32FG28B322F1024IM68-A",
+  "footprint": "Package_DFN_QFN:QFN-68-1EP_8x8mm_P0.4mm_EP5.2x5.2mm_ThermalVias",
+  "lcsc": "C20471554",
+  "mpn": "EFR32FG28B322F1024IM68-A",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/61c05296-3474-5290-bdad-e2c6f1859418",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "50": "3V3",
+   "49": "VREGSW",
+   "51": "GND",
+   "52": "DVDD",
+   "48": "DECOUPLE",
+   "53": "3V3",
+   "6": "3V3",
+   "33": "3V3",
+   "54": "3V3",
+   "19": "3V3",
+   "25": "3V3",
+   "20": "GND",
+   "69": "GND",
+   "18": "RESETn",
+   "16": "HFXI",
+   "17": "HFXO",
+   "23": "SUBG_O1",
+   "21": "SUBG_I1",
+   "24": "RF2G4_O0",
+   "22": "RF2G4_I0",
+   "2": "LFXTAL_O",
+   "1": "LFXTAL_I",
+   "32": "KEY_INT",
+   "34": "SWCLK",
+   "35": "SWDIO",
+   "36": "SWV",
+   "37": "NFC_IRQ",
+   "38": "SETUP_KEY",
+   "39": "FP_TOUCH",
+   "40": "DOOR_HALL",
+   "41": "VCOM_TX",
+   "42": "VCOM_RX",
+   "43": "PROX_INT",
+   "44": "MECH_KEY",
+   "45": "KEY_SCL",
+   "46": "KEY_SDA",
+   "47": "BUZZER",
+   "31": "DBL_LOCK",
+   "30": "TAMPER",
+   "29": "VBAT_ADC",
+   "28": "SPARE_WAKE",
+   "27": "MOT_ISENSE",
+   "26": "LED_R",
+   "3": "NFC_SCK",
+   "4": "NFC_MOSI",
+   "5": "NFC_MISO",
+   "7": "NFC_CS",
+   "8": "NFC_NRST",
+   "9": "NFC_PWR_EN",
+   "10": "MOT_IN1",
+   "11": "MOT_IN2",
+   "12": "MOT_NSLEEP",
+   "13": "VBAT_EN",
+   "14": "LED_G",
+   "15": "LED_B",
+   "68": "FP_TX",
+   "67": "FP_RX",
+   "66": "FP_PWR_EN",
+   "65": "FACE_PWR_EN",
+   "64": "FACE_TX",
+   "63": "FACE_RX",
+   "62": "KEY_BL_EN",
+   "61": "TP_PD9",
+   "60": "TP_PD10",
+   "59": "TP_PD11",
+   "58": "TP_PD12",
+   "57": "TP_PD13",
+   "56": "TP_PD14",
+   "55": "TP_PD15"
+  }
+ },
+ {
+  "ref": "C20",
+  "value": "10uF",
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/a30e180e-1d81-5782-af3a-b6b1be892ba6",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C21",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/05ba4cef-124b-569e-b10f-13e42c5df538",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "L3",
+  "value": "2.2uH",
+  "footprint": "Inductor_SMD:L_0805_2012Metric",
+  "lcsc": "C341781",
+  "mpn": "LQM21PN2R2MGHL",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/6fe9613e-b72c-5e34-a585-59764ffb50b4",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "VREGSW",
+   "2": "DVDD"
+  }
+ },
+ {
+  "ref": "C22",
+  "value": "4.7uF",
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "lcsc": "C19666",
+  "mpn": "CL10A475KO8NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/0ce2f796-072f-552a-ba64-94e3d11a25bf",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "DVDD",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C23",
+  "value": "1uF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C52923",
+  "mpn": "CL05A105KA5NQNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/f8a8172d-873d-5eac-9220-219c8e0673cd",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "DECOUPLE",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C24",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/0372e4d2-98c9-5c6e-9300-01fe761a0a48",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C25",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/b721bfd0-5662-5a9e-abdd-1bedc28c1f8a",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C26",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/18947322-51b5-5471-a527-f99e09e5c46c",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C27",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/8a6e119f-52d5-5053-b7c5-f166764738f6",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C28",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/30d24fe3-9e0e-52f2-8735-2767df9145b8",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C29",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/c6bd5873-d938-5158-ab39-16d56b15a870",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C30",
+  "value": "10uF",
+  "footprint": "Capacitor_SMD:C_0603_1608Metric",
+  "lcsc": "C19702",
+  "mpn": "CL10A106KP8NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/9ab2f74b-bc23-58cb-a105-9a346ef7d6f1",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "Y1",
+  "value": "39.0MHz",
+  "footprint": "Crystal:Crystal_SMD_2016-4Pin_2.0x1.6mm",
+  "lcsc": "C20248925",
+  "mpn": "8Y39072005",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/0db8df1a-ba66-5144-bed0-8cbb5121d629",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "HFXI",
+   "3": "HFXO",
+   "2": "GND",
+   "4": "GND"
+  }
+ },
+ {
+  "ref": "Y2",
+  "value": "32.768kHz",
+  "footprint": "Crystal:Crystal_SMD_2012-2Pin_2.0x1.2mm",
+  "lcsc": "C32346",
+  "mpn": "Q13FC13500004",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/6f0f8516-8eee-5ce5-9854-fa31f5c6b2f2",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "LFXTAL_I",
+   "2": "LFXTAL_O"
+  }
+ },
+ {
+  "ref": "R20",
+  "value": "10k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25744",
+  "mpn": "0402WGF1002TCE",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/3c114a83-bcaa-5c6a-8dbe-6188e450aacc",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "RESETn",
+   "2": "3V3"
+  }
+ },
+ {
+  "ref": "C31",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/08ccc72b-a674-5ba0-a2c9-e7f22783d70b",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "RESETn",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "J3",
+  "value": "DEBUG 2x5 1.27",
+  "footprint": "Connector_PinHeader_1.27mm:PinHeader_2x05_P1.27mm_Vertical_SMD",
+  "lcsc": "C5199898",
+  "mpn": "FTSH-105-01-L-DV",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/3535c66b-ce69-5de6-b11f-ecb2a0c97fb7",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "GND",
+   "3": "RESETn",
+   "4": "VCOM_RX",
+   "5": "VCOM_TX",
+   "6": "SWV",
+   "7": "SWDIO",
+   "8": "SWCLK",
+   "9": null,
+   "10": null
+  }
+ },
+ {
+  "ref": "TP4",
+  "value": "SWCLK",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/ac281562-e302-56ba-8654-573faec94c71",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "SWCLK"
+  }
+ },
+ {
+  "ref": "TP5",
+  "value": "SWDIO",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/afa7e482-0c52-5c15-bdb2-bc23a220f44d",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "SWDIO"
+  }
+ },
+ {
+  "ref": "TP6",
+  "value": "RESETn",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/b443f858-0515-5b7a-8761-3164cc616bcd",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "RESETn"
+  }
+ },
+ {
+  "ref": "TP7",
+  "value": "VCOM_TX",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/ec6def00-61d6-598b-b519-602feff672a3",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "VCOM_TX"
+  }
+ },
+ {
+  "ref": "TP8",
+  "value": "VCOM_RX",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/b0e1d62b-217a-5da9-aa9a-e880e145c274",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "VCOM_RX"
+  }
+ },
+ {
+  "ref": "TP9",
+  "value": "SWV",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/751f691c-dc0f-5721-944f-eb6a0102aaa2",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "SWV"
+  }
+ },
+ {
+  "ref": "TP10",
+  "value": "TP_PD9",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/12f161b6-a1f6-5038-a587-52efcc3b3bfb",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "TP_PD9"
+  }
+ },
+ {
+  "ref": "TP11",
+  "value": "TP_PD10",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/3bf49f5e-1b95-5c60-b796-3f8c3e8155ba",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "TP_PD10"
+  }
+ },
+ {
+  "ref": "TP12",
+  "value": "TP_PD11",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/9256802b-9427-5bd6-86c3-1013a31dc988",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "TP_PD11"
+  }
+ },
+ {
+  "ref": "TP13",
+  "value": "TP_PD12",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/8f371af3-5582-5620-b435-8f2adc87e223",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "TP_PD12"
+  }
+ },
+ {
+  "ref": "TP14",
+  "value": "TP_PD13",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/69261405-a564-5a12-ba0a-3917fdfc7d07",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "TP_PD13"
+  }
+ },
+ {
+  "ref": "TP15",
+  "value": "TP_PD14",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/6f92ab1d-d870-5faf-a8ea-7babcd7d185a",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "TP_PD14"
+  }
+ },
+ {
+  "ref": "TP16",
+  "value": "TP_PD15",
+  "footprint": "TestPoint:TestPoint_Pad_D1.0mm",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/d9b3242e-d138-51ae-90b3-0106efe8fdc5",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "TP_PD15"
+  }
+ },
+ {
+  "ref": "L101",
+  "value": "TBD",
+  "footprint": "Inductor_SMD:L_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "Murata LQW15AN 系列（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/43392dad-6f8b-5d4f-9973-0619fe6b985e",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "SUBG_O1",
+   "2": "RF_TX1"
+  }
+ },
+ {
+  "ref": "C101",
+  "value": "TBD",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "0402 C0G（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/f8232695-4c72-5e6c-b1aa-6dcdb3393477",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_TX1",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "L102",
+  "value": "TBD",
+  "footprint": "Inductor_SMD:L_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "Murata LQW15AN 系列（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/b957d280-69fb-5904-9124-61953b95063d",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_TX1",
+   "2": "RF_TX2"
+  }
+ },
+ {
+  "ref": "C102",
+  "value": "TBD",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "0402 C0G（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/adfe5968-8932-5e8c-b65a-cb85192b45de",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_TX2",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "L103",
+  "value": "TBD",
+  "footprint": "Inductor_SMD:L_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "Murata LQW15AN 系列（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/1739e6bd-4fa8-5127-8f87-14cf41d8e7f2",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_TX2",
+   "2": "RF_SUBG"
+  }
+ },
+ {
+  "ref": "C103",
+  "value": "TBD",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "0402 C0G（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/f6881df3-fc24-54ff-87b2-e7479bebaa1a",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_SUBG",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C104",
+  "value": "TBD",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "0402 C0G（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/84a540d3-74b6-5c37-8888-51d6288c5034",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "SUBG_I1",
+   "2": "RF_RX1"
+  }
+ },
+ {
+  "ref": "L104",
+  "value": "TBD",
+  "footprint": "Inductor_SMD:L_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "Murata LQW15AN 系列（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/f229552c-ea97-5493-b993-312ac6f82122",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_RX1",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "L105",
+  "value": "TBD",
+  "footprint": "Inductor_SMD:L_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "Murata LQW15AN 系列（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/b04005ce-3575-590d-93b6-25177ca41b31",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_RX1",
+   "2": "RF_SUBG"
+  }
+ },
+ {
+  "ref": "C105",
+  "value": "TBD",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "0402 C0G（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/1bf2b655-3ba2-5cb0-a8a8-1ead57f40045",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_SUBG",
+   "2": "RF_PI1"
+  }
+ },
+ {
+  "ref": "C106",
+  "value": "DNP",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": true,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/b9f2340e-b005-50c5-adba-4df28f2957e9",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_PI1",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "L106",
+  "value": "0R",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C17168",
+  "mpn": "0402WGF0000TCE",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/650afb02-b679-548a-946d-42f58ae19ab2",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_PI1",
+   "2": "RF_ANT"
+  }
+ },
+ {
+  "ref": "C107",
+  "value": "DNP",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": true,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/1bc6c301-2dd3-5ae5-aa50-026642051d42",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_ANT",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "R101",
+  "value": "0R",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C17168",
+  "mpn": "0402WGF0000TCE",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/41686c60-04dc-571d-83fa-82be5b3c2c77",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_ANT",
+   "2": "ANT_SPRING"
+  }
+ },
+ {
+  "ref": "R102",
+  "value": "0R",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C17168",
+  "mpn": "0402WGF0000TCE",
+  "dnp": true,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/f2b02026-2540-5b18-aec4-78427d3c4d37",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF_ANT",
+   "2": "ANT_IPEX"
+  }
+ },
+ {
+  "ref": "ANT1",
+  "value": "433MHz spring",
+  "footprint": "smartlock:Spring_Antenna_433_THT",
+  "lcsc": "",
+  "mpn": "433 MHz 螺旋弹簧天线（手焊）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/29e5052f-1651-532b-87d1-a426cadf88e7",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "ANT_SPRING"
+  }
+ },
+ {
+  "ref": "J8",
+  "value": "IPEX",
+  "footprint": "Connector_Coaxial:U.FL_Hirose_U.FL-R-SMT-1_Vertical",
+  "lcsc": "C496552",
+  "mpn": "BWIPX-1-001E",
+  "dnp": true,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/df91e864-02b1-5651-b2ce-f1b1ec991479",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "ANT_IPEX",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "L201",
+  "value": "TBD",
+  "footprint": "Inductor_SMD:L_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "Murata LQW15AN 系列（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/f7aaaf1a-dd24-52c7-b8df-b65adffbbe31",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF2G4_O0",
+   "2": "RF24_N"
+  }
+ },
+ {
+  "ref": "L202",
+  "value": "TBD",
+  "footprint": "Inductor_SMD:L_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "Murata LQW15AN 系列（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/c9b9deb2-68c6-5839-bd42-980117bb382e",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF2G4_I0",
+   "2": "RF24_N"
+  }
+ },
+ {
+  "ref": "C201",
+  "value": "TBD",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "0402 C0G（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/1cd3a1f0-2770-5ae3-b242-6f50542bb353",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF24_N",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C202",
+  "value": "TBD",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "0402 C0G（值待定）",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/99af51d6-fc65-57d4-9eda-dd669a2686fa",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF24_N",
+   "2": "RF24_ANT"
+  }
+ },
+ {
+  "ref": "C203",
+  "value": "DNP",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": true,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/af1575eb-cc42-5927-bf67-3f5f62dae92f",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF24_ANT",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "ANT2",
+  "value": "2.4GHz PCB IFA",
+  "footprint": "RF_Antenna:Texas_SWRA117D_2.4GHz_Left",
+  "lcsc": "",
+  "mpn": "",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/c645dae2-c5fa-5eb1-b427-557e808289f4",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF24_ANT",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "U3",
+  "value": "DRV8837DSGR",
+  "footprint": "Package_SON:WSON-8-1EP_2x2mm_P0.5mm_EP0.9x1.6mm",
+  "lcsc": "C39159",
+  "mpn": "DRV8837DSGR",
+  "dnp": false,
+  "path": "/62990736-9476-55e7-ac6e-92f727d79722/7a0e3b6a-6153-54ae-91c2-852fbbd9e0ef",
+  "sheet": "motor.kicad_sch",
+  "sheetname": "电机",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "MOT_OUT1",
+   "3": "MOT_OUT2",
+   "4": "MOT_GND",
+   "5": "MOT_IN2",
+   "6": "MOT_IN1",
+   "7": "MOT_NSLEEP",
+   "8": "3V3",
+   "9": "MOT_GND"
+  }
+ },
+ {
+  "ref": "R30",
+  "value": "0.22R 1%",
+  "footprint": "Resistor_SMD:R_0603_1608Metric",
+  "lcsc": "C20160538",
+  "mpn": "PE0603FRF070R22L",
+  "dnp": false,
+  "path": "/62990736-9476-55e7-ac6e-92f727d79722/470cf856-987d-5438-8d8b-16d5b9394380",
+  "sheet": "motor.kicad_sch",
+  "sheetname": "电机",
+  "pins": {
+   "1": "MOT_GND",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "R31",
+  "value": "1k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "dnp": false,
+  "path": "/62990736-9476-55e7-ac6e-92f727d79722/25897e9b-71ba-5a03-a07c-25f5fc6c9081",
+  "sheet": "motor.kicad_sch",
+  "sheetname": "电机",
+  "pins": {
+   "1": "MOT_GND",
+   "2": "MOT_ISENSE"
+  }
+ },
+ {
+  "ref": "C40",
+  "value": "10nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C15195",
+  "mpn": "CL05B103KB5NNNC",
+  "dnp": false,
+  "path": "/62990736-9476-55e7-ac6e-92f727d79722/debb1105-b68d-5495-bf4b-cd4375d70e48",
+  "sheet": "motor.kicad_sch",
+  "sheetname": "电机",
+  "pins": {
+   "1": "MOT_ISENSE",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C41",
+  "value": "10uF/25V",
+  "footprint": "Capacitor_SMD:C_0805_2012Metric",
+  "lcsc": "C15850",
+  "mpn": "CL21A106KAYNNNE",
+  "dnp": false,
+  "path": "/62990736-9476-55e7-ac6e-92f727d79722/4084933a-f269-573a-aaf0-cd6f2f59b4f4",
+  "sheet": "motor.kicad_sch",
+  "sheetname": "电机",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C42",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/62990736-9476-55e7-ac6e-92f727d79722/7f4af350-85af-5072-9a44-b7b5564ffb0e",
+  "sheet": "motor.kicad_sch",
+  "sheetname": "电机",
+  "pins": {
+   "1": "VBAT_P",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C43",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/62990736-9476-55e7-ac6e-92f727d79722/e50bf0f5-cdbe-5ae5-a037-2b9c1747cede",
+  "sheet": "motor.kicad_sch",
+  "sheetname": "电机",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "R32",
+  "value": "100k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "dnp": false,
+  "path": "/62990736-9476-55e7-ac6e-92f727d79722/91240064-b91a-5f3a-82a3-e2d7eefac3d0",
+  "sheet": "motor.kicad_sch",
+  "sheetname": "电机",
+  "pins": {
+   "1": "MOT_NSLEEP",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "J7",
+  "value": "MOTOR",
+  "footprint": "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
+  "lcsc": "C295747",
+  "mpn": "S2B-PH-SM4-TB(LF)(SN)",
+  "dnp": false,
+  "path": "/62990736-9476-55e7-ac6e-92f727d79722/1e4c8247-fb88-5500-abaa-ac9ccd94d338",
+  "sheet": "motor.kicad_sch",
+  "sheetname": "电机",
+  "pins": {
+   "1": "MOT_OUT1",
+   "2": "MOT_OUT2",
+   "MP": null
+  }
+ },
+ {
+  "ref": "U5",
+  "value": "DRV5032FBDBZR",
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C2655033",
+  "mpn": "DRV5032FBDBZR",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/14933bb3-1f22-5eb6-9533-f2bc3de6bb1e",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "3V3",
+   "2": "DOOR_HALL",
+   "3": "GND"
+  }
+ },
+ {
+  "ref": "C50",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/af80eee2-1898-53d6-b9ce-10e73c568c68",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "3V3",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "SW1",
+  "value": "PTS810",
+  "footprint": "Button_Switch_SMD:SW_SPST_PTS810",
+  "lcsc": "C116501",
+  "mpn": "PTS810SJM250SMTRLFS",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/1ea5ff10-312c-5590-b207-2e995e161033",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "DBL_LOCK",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C51",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/5486f467-5396-54c0-9954-a5f27c89b9e2",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "DBL_LOCK",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "D51",
+  "value": "ESD5Z5.0T1G",
+  "footprint": "Diode_SMD:D_SOD-523",
+  "lcsc": "C82044",
+  "mpn": "ESD5Z5.0T1G",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/9c6ec921-dd5c-51cc-91ca-336da446faa5",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "DBL_LOCK",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "SW2",
+  "value": "PTS810",
+  "footprint": "Button_Switch_SMD:SW_SPST_PTS810",
+  "lcsc": "C116501",
+  "mpn": "PTS810SJM250SMTRLFS",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/1a4ffb1d-cd3f-54cb-b125-b5eb13c4e2a8",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "TAMPER",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C52",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/f1cde5b9-ab04-5e5f-a150-3a27d6db81fc",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "TAMPER",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "D52",
+  "value": "ESD5Z5.0T1G",
+  "footprint": "Diode_SMD:D_SOD-523",
+  "lcsc": "C82044",
+  "mpn": "ESD5Z5.0T1G",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/a66129dd-124b-5e13-98ec-22e3b911d5e4",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "TAMPER",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "SW3",
+  "value": "PTS810",
+  "footprint": "Button_Switch_SMD:SW_SPST_PTS810",
+  "lcsc": "C116501",
+  "mpn": "PTS810SJM250SMTRLFS",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/ea44c3f5-bea3-5134-995b-9601d3aeb010",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "MECH_KEY",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C53",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/d6e9e582-bf2d-5b15-96fa-79ef984b9910",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "MECH_KEY",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "D53",
+  "value": "ESD5Z5.0T1G",
+  "footprint": "Diode_SMD:D_SOD-523",
+  "lcsc": "C82044",
+  "mpn": "ESD5Z5.0T1G",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/825c3f46-3550-5508-96e6-7a7ab6fdf2da",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "MECH_KEY",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "SW4",
+  "value": "PTS810",
+  "footprint": "Button_Switch_SMD:SW_SPST_PTS810",
+  "lcsc": "C116501",
+  "mpn": "PTS810SJM250SMTRLFS",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/7c3fe19e-291d-5211-951a-a1b2f3e88451",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "SETUP_KEY",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C54",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/669cd511-a1fd-5a59-8638-30e193adc90e",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "SETUP_KEY",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "D54",
+  "value": "ESD5Z5.0T1G",
+  "footprint": "Diode_SMD:D_SOD-523",
+  "lcsc": "C82044",
+  "mpn": "ESD5Z5.0T1G",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/ebdf9bc2-1814-5498-80c8-6499b1167e07",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "SETUP_KEY",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "SW5",
+  "value": "PTS810",
+  "footprint": "Button_Switch_SMD:SW_SPST_PTS810",
+  "lcsc": "C116501",
+  "mpn": "PTS810SJM250SMTRLFS",
+  "dnp": true,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/0d137dec-4adf-5753-a39e-ce77041feab7",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "SPARE_WAKE",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C55",
+  "value": "100nF",
+  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "lcsc": "C1525",
+  "mpn": "CL05B104KO5NNNC",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/300439aa-a40d-5543-8d11-36264f1ccfd9",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "SPARE_WAKE",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "D55",
+  "value": "ESD5Z5.0T1G",
+  "footprint": "Diode_SMD:D_SOD-523",
+  "lcsc": "C82044",
+  "mpn": "ESD5Z5.0T1G",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/912072d9-dc3a-5b9a-bed8-6f53909f5c69",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "SPARE_WAKE",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "BZ1",
+  "value": "Buzzer",
+  "footprint": "Buzzer_Beeper:Buzzer_CUI_CPT-9019S-SMT",
+  "lcsc": "C95163",
+  "mpn": "CPT-9019S-SMT-TR",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/282d4a81-667a-5c05-b6ad-7d3d8dd49e23",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "3V3",
+   "2": "BUZ_N"
+  }
+ },
+ {
+  "ref": "Q4",
+  "value": "MMBT3904",
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C20526",
+  "mpn": "MMBT3904",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/a545d7a3-f8a9-59c1-be0f-d990babaa0c4",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "BUZ_B",
+   "2": "GND",
+   "3": "BUZ_N"
+  }
+ },
+ {
+  "ref": "R50",
+  "value": "1k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/987b2410-fc5b-5910-b5fc-7b8c2f4d93b6",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "BUZZER",
+   "2": "BUZ_B"
+  }
+ },
+ {
+  "ref": "D56",
+  "value": "1N4148W",
+  "footprint": "Diode_SMD:D_SOD-123",
+  "lcsc": "C81598",
+  "mpn": "1N4148W",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/e9c3458b-d0d7-5747-a61f-a1cfe12ce558",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "3V3",
+   "2": "BUZ_N"
+  }
+ },
+ {
+  "ref": "R52",
+  "value": "1k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/353c469e-e9f6-54e0-8b1f-18f7ab7892c0",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "LED_R",
+   "2": "LED_R_A"
+  }
+ },
+ {
+  "ref": "D57",
+  "value": "LED 红",
+  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "lcsc": "C2286",
+  "mpn": "KT-0603R",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/bda2180c-48d9-51d6-84d6-b3a3c411e647",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "GND",
+   "2": "LED_R_A"
+  }
+ },
+ {
+  "ref": "R53",
+  "value": "1k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/02db66d6-886b-5558-8f3d-f0ffd2097d23",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "LED_G",
+   "2": "LED_G_A"
+  }
+ },
+ {
+  "ref": "D58",
+  "value": "LED 绿",
+  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "lcsc": "C72043",
+  "mpn": "19-217/GHC-YR1S2/3T",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/77e875ee-e775-545e-8e76-3cca8b4de54a",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "GND",
+   "2": "LED_G_A"
+  }
+ },
+ {
+  "ref": "R54",
+  "value": "1k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/cb74461a-a597-5669-a76d-0a38bccdbd25",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "LED_B",
+   "2": "LED_B_A"
+  }
+ },
+ {
+  "ref": "D59",
+  "value": "LED 蓝",
+  "footprint": "LED_SMD:LED_0603_1608Metric",
+  "lcsc": "C72041",
+  "mpn": "19-217/BHC-ZL1M2RY/3T",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/d0f14c82-a2f6-5104-94ee-35311745665e",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "GND",
+   "2": "LED_B_A"
+  }
+ },
+ {
+  "ref": "Q5",
+  "value": "AO3400A",
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C20917",
+  "mpn": "AO3400A",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/0e41ae35-f3cd-5123-b0b6-8ee3f14a4803",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "KEY_BL_EN",
+   "2": "GND",
+   "3": "KEY_BL"
+  }
+ },
+ {
+  "ref": "R56",
+  "value": "100k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/2beb6013-372d-5ca9-a13f-e5aeda82b301",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "KEY_BL_EN",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "R57",
+  "value": "4.7k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "0402WGF4701TCE",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/86fdb5d5-13b8-53ab-944f-5ce9127abbc4",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "KEY_SCL",
+   "2": "3V3"
+  }
+ },
+ {
+  "ref": "R58",
+  "value": "4.7k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25900",
+  "mpn": "0402WGF4701TCE",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/df497ebc-a22c-52c1-9329-c90a64bc4077",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "KEY_SDA",
+   "2": "3V3"
+  }
+ },
+ {
+  "ref": "R59",
+  "value": "100k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C25741",
+  "mpn": "0402WGF1003TCE",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/93c670b9-e4ee-58d6-b5ca-5d42854a587f",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "NFC_NRST",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "J4",
+  "value": "FPC 16P 0.5mm",
+  "footprint": "Connector_FFC-FPC:Hirose_FH12-16S-0.5SH_1x16-1MP_P0.50mm_Horizontal",
+  "lcsc": "C596731",
+  "mpn": "FH12-16S-0.5SH(55)",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/a9bdea89-5c58-5f36-9e81-d559e86f08f3",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "GND",
+   "2": "3V3_NFC",
+   "3": "NFC_SCK",
+   "4": "NFC_MOSI",
+   "5": "NFC_MISO",
+   "6": "NFC_CS",
+   "7": "NFC_IRQ",
+   "8": "NFC_NRST",
+   "9": "GND",
+   "10": "3V3",
+   "11": "KEY_SCL",
+   "12": "KEY_SDA",
+   "13": "KEY_INT",
+   "14": "KEY_BL",
+   "15": "SPARE_WAKE",
+   "16": "GND",
+   "MP": "GND"
+  }
+ },
+ {
+  "ref": "J5",
+  "value": "FINGERPRINT",
+  "footprint": "Connector_JST:JST_SH_SM06B-SRSS-TB_1x06-1MP_P1.00mm_Horizontal",
+  "lcsc": "C160405",
+  "mpn": "SM06B-SRSS-TB(LF)(SN)",
+  "dnp": false,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/5ae50b9f-11cd-53ec-af60-cd1e3ae34846",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "3V3_FP",
+   "2": "GND",
+   "3": "FP_RX",
+   "4": "FP_TX",
+   "5": "FP_TOUCH",
+   "6": "3V3",
+   "MP": null
+  }
+ },
+ {
+  "ref": "J6",
+  "value": "FACE",
+  "footprint": "Connector_JST:JST_SH_SM06B-SRSS-TB_1x06-1MP_P1.00mm_Horizontal",
+  "lcsc": "C160405",
+  "mpn": "SM06B-SRSS-TB(LF)(SN)",
+  "dnp": true,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/674a4407-20ae-5dd0-993d-52bc734ae023",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "5V_FACE",
+   "2": "GND",
+   "3": "FACE_RX_M",
+   "4": "FACE_TX",
+   "5": "PROX_INT",
+   "6": null,
+   "MP": null
+  }
+ },
+ {
+  "ref": "R60",
+  "value": "1k",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C11702",
+  "mpn": "0402WGF1001TCE",
+  "dnp": true,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/257a6283-39ef-53dc-a460-92fe7b1c2a49",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "FACE_RX_M",
+   "2": "FACE_RX"
+  }
+ },
+ {
+  "ref": "D60",
+  "value": "BAT54S",
+  "footprint": "Package_TO_SOT_SMD:SOT-23",
+  "lcsc": "C47546",
+  "mpn": "BAT54S,215",
+  "dnp": true,
+  "path": "/b81f7a4a-05d3-595f-8a03-bcc7d6c790e4/1f878146-c506-5a87-8ec4-72c065afd9b9",
+  "sheet": "io.kicad_sch",
+  "sheetname": "传感器与接口",
+  "pins": {
+   "1": "GND",
+   "2": "3V3",
+   "3": "FACE_RX"
+  }
+ }
+]

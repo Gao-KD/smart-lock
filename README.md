@@ -41,7 +41,9 @@ scripts/demo.sh all                                          # Docker: docker co
 ## 硬件
 
 - **[主板设计规格 rev A](docs/hardware/board-spec.md)**：可直接画板的电源树、定稿引脚表、各模块参考电路、FPC 定义、BOM、检查清单
-- **[硬件交付说明](docs/hardware/handoff.md)**：给硬件工程师的平台选型、BOM 与频段采购、接口约束、软硬件分工、验收标准（含频段合规风险）
+- **[主板 KiCad 8 工程](hardware/mainboard/README.md)**：按规格生成的分层原理图、封装、嘉立创 BOM（带 LCSC 编号）、导入网表的 4 层空板；ERC 0 违规，引脚与 `board.h` 逐脚核对
+- [macOS 上用 KiCad 画板并在嘉立创下单](docs/hardware/kicad-macos.md)
+- **[硬件交付说明](docs/hardware/handoff.md)****：给硬件工程师的平台选型、BOM 与频段采购、接口约束、软硬件分工、验收标准（含频段合规风险）
 - [EFR32 移植层说明](firmware/lock/port/efr32/README.md)：固件怎么编译、烧录，哪些已完成
 - [测试购买清单](docs/hardware/purchase-list.md)
 - [嘉立创 EDA 原理图与 PCB 指南](docs/hardware/pcb-guide.md)
