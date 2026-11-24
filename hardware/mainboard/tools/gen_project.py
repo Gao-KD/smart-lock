@@ -42,6 +42,7 @@ R0402 = {  # value: (LCSC, MPN) -- UniOhm 0402 1 %, JLC basic parts
     "10k": ("C25744", "0402WGF1002TCE"), "19.1k": ("C52036", "0402WGF1912TCE"),
     "100k": ("C25741", "0402WGF1003TCE"), "221k": ("C26998", "0402WGF2213TCE"),
     "330k": ("C25778", "0402WGF3303TCE"), "1M": ("C26083", "0402WGF1004TCE"),
+    "10M": ("C26082", "0402WGF1005TCE"),
 }
 CAPS = {  # value: (footprint, LCSC, MPN)
     "1nF": (FP_C0402, "C14442", "CL05B102KB5NNNC"),
@@ -138,10 +139,22 @@ P.part(sp, "J1", "Connector_Generic_MountingPin:Conn_01x02_MountingPin", "BAT 4x
        "Connector_JST:JST_PH_S2B-PH-SM4-TB_1x02-1MP_P2.00mm_Horizontal",
        {"1": "BAT", "2": "GND", "MP": None}, "C295747", "S2B-PH-SM4-TB(LF)(SN)", note="电池输入，1=正 2=负")
 P.part(sp, "Q1", "Transistor_FET:AO3401A", "AO3401A", "Package_TO_SOT_SMD:SOT-23",
-       {"1": "REVPOL_G", "2": "VBAT_P", "3": "BAT"}, "C15127", "AO3401A", note="防反接 P-MOS：D 接电池，S 接 VBAT_P")
-R(sp, "R1", "100k", "REVPOL_G", "GND")
+       {"1": "REVPOL_G", "2": "BAT_SRC", "3": "BAT"}, "C15127", "AO3401A",
+       note="电池支路背靠背 P-MOS（电池侧）：防反接")
+P.part(sp, "Q6", "Transistor_FET:AO3401A", "AO3401A", "Package_TO_SOT_SMD:SOT-23",
+       {"1": "REVPOL_G", "2": "BAT_SRC", "3": "VBAT_P"}, "C15127", "AO3401A",
+       note="电池支路背靠背 P-MOS（负载侧）：插 USB 时关断，阻止反灌电池")
+R(sp, "R1", "10M", "REVPOL_G", "BAT_SRC", note="默认关断上拉；10M 避免 Q7 导通时常耗电")
 P.part(sp, "D1", "Diode:BZT52Bxx", "BZT52C10", "Diode_SMD:D_SOD-123",
-       {"1": "VBAT_P", "2": "REVPOL_G"}, "C155227", "BZT52C10-7-F", note="Vgs 齐纳保护")
+       {"1": "BAT_SRC", "2": "REVPOL_G"}, "C155227", "BZT52C10-7-F", note="Vgs 齐纳保护")
+P.part(sp, "Q7", "Transistor_FET:2N7002", "2N7002", "Package_TO_SOT_SMD:SOT-23",
+       {"1": "BAT_ON", "2": "GND", "3": "REVPOL_G"}, "C8545", "2N7002",
+       note="电池正接且无 USB 时导通，拉低 Q1/Q6 栅极；电池装反时关断")
+R(sp, "R16", "100k", "BAT", "BAT_ON", note="Q7 栅极由电池电压驱动（无直流耗电）")
+P.part(sp, "Q8", "Transistor_FET:2N7002", "2N7002", "Package_TO_SOT_SMD:SOT-23",
+       {"1": "USB_VBUS", "2": "GND", "3": "BAT_ON"}, "C8545", "2N7002",
+       note="USB 插入时导通，关断 Q7，从而关断电池支路")
+R(sp, "R17", "100k", "USB_VBUS", "GND", note="USB 未插时 Q8 栅极下拉")
 P.part(sp, "J2", "Connector:USB_C_Receptacle_PowerOnly_6P", "USB-C 供电",
        "Connector_USB:USB_C_Receptacle_GCT_USB4125-xx-x_6P_TopMnt_Horizontal",
        {"A9": "USB_VBUS", "B9": "USB_VBUS", "A12": "GND", "B12": "GND", "S1": "GND",
@@ -278,25 +291,34 @@ for i in range(9, 16):
 
 # ================================================================== sheet 3: RF
 sr = P.sheet("射频", "rf.kicad_sch", "射频：433 MHz 匹配/低通/π 型微调/天线选择，2.4 GHz 匹配 + PCB 天线")
-sr.text("!! 本页 TBD 器件的结构和取值必须照抄 Silicon Labs xG28 参考设计（BRD4401C 原理图 + 433 MHz 匹配应用笔记），\n"
-        "   本工程生成时无法下载官方设计文件，拓扑为占位：TX 三阶 LC 低通、RX L 型匹配、天线端 π 型（C106/L106/C107）。\n"
-        "   拿到参考设计后按它增删位置、填值，再在 BOM 中补 LCSC 编号。\n"
+sr.text("433 MHz：TX/RX 直连（Direct-Tie）匹配，无射频开关。拓扑和取值由项目方提供，依据 EFR32ZG28 数据手册 5.2.3（Fig 5.7 / Table 5.5）\n"
+        "   与 AN923.2 的 433 MHz +14 dBm 匹配网络，生成工程时无法下载原文核对，打样前请对照原文确认一遍。\n"
+        "   映射：官方 L1=L101（馈电，接 PAVDD 同一电源 3V3）、L2=L102、C1=C101、C2=C102、L3=L103、C3=C105（原 L106 位）。\n"
+        "   +14 dBm 匹配：门锁限 10 mW e.r.p.，传导功率按天线实测设定，不要按 +20 dBm 满功率发射（满功率需另一套匹配）。\n"
+        "   单级 LC，谐波余量少，送检前用频谱仪看二、三次谐波。C106/C107 为天线端 π 型微调位，默认不贴。\n"
         "R101/R102 二选一：默认贴 R101 接弹簧天线 ANT1；改用 IPEX（J8）时贴 R102、拆 R101。\n"
-        "布线：50 Ω 共面波导，4 层板第 2 层完整地，两侧地过孔；天线在板上沿，远离电池仓和电机 >=15 mm。", 15, 225)
-TBD(sr, "L101", "L", "SUBG_O1", "RF_TX1")
-TBD(sr, "C101", "C", "RF_TX1", "GND")
-TBD(sr, "L102", "L", "RF_TX1", "RF_TX2")
-TBD(sr, "C102", "C", "RF_TX2", "GND")
-TBD(sr, "L103", "L", "RF_TX2", "RF_SUBG")
-TBD(sr, "C103", "C", "RF_SUBG", "GND")
-TBD(sr, "C104", "C", "SUBG_I1", "RF_RX1", note="RX 匹配，取值照抄参考设计")
-TBD(sr, "L104", "L", "RF_RX1", "GND", note="RX 匹配，取值照抄参考设计")
-TBD(sr, "L105", "L", "RF_RX1", "RF_SUBG", note="RX 匹配，取值照抄参考设计")
-TBD(sr, "C105", "C", "RF_SUBG", "RF_PI1", note="隔直，取值照抄参考设计")
+        "2.4 GHz 部分（L201/L202/C201/C202）取值仍待照抄 BRD4401C。\n"
+        "布线：50 Ω 共面波导（JLC04161H-7628 参考 0.30 mm 线宽 / 0.20 mm 间距，用嘉立创计算器复核），第 2 层完整地，地过孔间距 1.5-2 mm；\n"
+        "   ANT1 周围 5 mm 内所有层禁铺铜；天线在板上沿，远离电池仓和电机 >=15 mm。", 15, 225)
+
+
+def RFP(sh, ref, sym, val, a, b, lcsc, mpn, note):
+    fp = FP_L0402 if sym == "Device:L" else FP_C0402
+    return P.part(sh, ref, sym, val, fp, {"1": a, "2": b}, lcsc, mpn, note=note)
+
+
+RFP(sr, "L101", "Device:L", "10nH", "SUBG_O1", "3V3", "C77103", "LQG15HS10NJ02D", "官方 L1：TX 馈电/匹配，接 PAVDD 电源（3V3）")
+C(sr, "C108", "100nF", "3V3", note="L101 电源端就近去耦")
+RFP(sr, "C109", "Device:C", "100pF", "3V3", "GND", "C77177", "GRM1555C1H101JA01D", "L101 电源端就近去耦（高频）")
+RFP(sr, "L102", "Device:L", "33nH", "SUBG_O1", "RF_SUBG", "C86062", "LQG15HS33NJ02D", "官方 L2：TX 串联匹配")
+RFP(sr, "C101", "Device:C", "15pF", "RF_SUBG", "GND", "C76950", "GRM1555C1H150JA01D", "官方 C1：公共节点对地，C0G ±5%")
+RFP(sr, "C102", "Device:C", "5.6pF", "SUBG_I1", "RF_SUBG", "C85941", "GRM1555C1H5R6CA01D", "官方 C2：RX 串联，C0G ±0.25 pF")
+RFP(sr, "L103", "Device:L", "82nH", "SUBG_I1", "GND", "C98002", "LQG15HS82NJ02D", "官方 L3：RX 对地")
 C_PI = "π 型微调位，默认不贴"
-P.part(sr, "C106", "Device:C", "DNP", FP_C0402, {"1": "RF_PI1", "2": "GND"}, "", "", dnp=True, note=C_PI,
+P.part(sr, "C106", "Device:C", "DNP", FP_C0402, {"1": "RF_SUBG", "2": "GND"}, "", "", dnp=True, note=C_PI,
        newrow=True)
-R(sr, "L106", "0", "RF_PI1", "RF_ANT", note="π 型串联位，默认 0R")
+RFP(sr, "C105", "Device:C", "220pF", "RF_SUBG", "RF_ANT", "C71693", "GRM1555C1H221JA01D",
+    "官方 C3：隔直/耦合，占原 L106 位（π 型串联位）")
 P.part(sr, "C107", "Device:C", "DNP", FP_C0402, {"1": "RF_ANT", "2": "GND"}, "", "", dnp=True, note=C_PI)
 R(sr, "R101", "0", "RF_ANT", "ANT_SPRING", note="选弹簧天线（默认）")
 R(sr, "R102", "0", "RF_ANT", "ANT_IPEX", dnp=True, note="选 IPEX（与 R101 二选一）")
