@@ -859,7 +859,7 @@
    "33": "3V3",
    "54": "3V3",
    "19": "3V3",
-   "25": "3V3",
+   "25": "PAVDD",
    "20": "GND",
    "69": "GND",
    "18": "RESETn",
@@ -1081,7 +1081,7 @@
   "sheet": "mcu.kicad_sch",
   "sheetname": "主控",
   "pins": {
-   "1": "3V3",
+   "1": "PAVDD",
    "2": "GND"
   }
  },
@@ -1096,8 +1096,38 @@
   "sheet": "mcu.kicad_sch",
   "sheetname": "主控",
   "pins": {
-   "1": "3V3",
+   "1": "PAVDD",
    "2": "GND"
+  }
+ },
+ {
+  "ref": "R21",
+  "value": "0R",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C17168",
+  "mpn": "0402WGF0000TCE",
+  "dnp": false,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/69bf90d4-b0a8-5e6d-8f48-9ec43cbb2c5f",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "DVDD",
+   "2": "PAVDD"
+  }
+ },
+ {
+  "ref": "R22",
+  "value": "0R",
+  "footprint": "Resistor_SMD:R_0402_1005Metric",
+  "lcsc": "C17168",
+  "mpn": "0402WGF0000TCE",
+  "dnp": true,
+  "path": "/63b37b6e-b6c7-5207-8f1b-feb2abef2342/8cf78f71-a4f9-59e9-a93a-93ab8a379024",
+  "sheet": "mcu.kicad_sch",
+  "sheetname": "主控",
+  "pins": {
+   "1": "3V3",
+   "2": "PAVDD"
   }
  },
  {
@@ -1379,7 +1409,7 @@
   "sheetname": "射频",
   "pins": {
    "1": "SUBG_O1",
-   "2": "3V3"
+   "2": "PAVDD"
   }
  },
  {
@@ -1393,7 +1423,7 @@
   "sheet": "rf.kicad_sch",
   "sheetname": "射频",
   "pins": {
-   "1": "3V3",
+   "1": "PAVDD",
    "2": "GND"
   }
  },
@@ -1408,7 +1438,7 @@
   "sheet": "rf.kicad_sch",
   "sheetname": "射频",
   "pins": {
-   "1": "3V3",
+   "1": "PAVDD",
    "2": "GND"
   }
  },
@@ -1578,68 +1608,113 @@
  },
  {
   "ref": "L201",
-  "value": "TBD",
-  "footprint": "Inductor_SMD:L_0402_1005Metric",
-  "lcsc": "",
-  "mpn": "Murata LQW15AN 系列（值待定）",
+  "value": "3nH",
+  "footprint": "Inductor_SMD:L_0201_0603Metric",
+  "lcsc": "C98044",
+  "mpn": "LQP03TN3N0B02D",
   "dnp": false,
   "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/f7aaaf1a-dd24-52c7-b8df-b65adffbbe31",
   "sheet": "rf.kicad_sch",
   "sheetname": "射频",
   "pins": {
    "1": "RF2G4_O0",
-   "2": "RF24_N"
-  }
- },
- {
-  "ref": "L202",
-  "value": "TBD",
-  "footprint": "Inductor_SMD:L_0402_1005Metric",
-  "lcsc": "",
-  "mpn": "Murata LQW15AN 系列（值待定）",
-  "dnp": false,
-  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/c9b9deb2-68c6-5839-bd42-980117bb382e",
-  "sheet": "rf.kicad_sch",
-  "sheetname": "射频",
-  "pins": {
-   "1": "RF2G4_I0",
-   "2": "RF24_N"
+   "2": "RF24_A"
   }
  },
  {
   "ref": "C201",
-  "value": "TBD",
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
-  "lcsc": "",
-  "mpn": "0402 C0G（值待定）",
+  "value": "1pF",
+  "footprint": "Capacitor_SMD:C_0201_0603Metric",
+  "lcsc": "C91603",
+  "mpn": "GJM0335C1E1R0BB01D",
   "dnp": false,
   "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/1cd3a1f0-2770-5ae3-b242-6f50542bb353",
   "sheet": "rf.kicad_sch",
   "sheetname": "射频",
   "pins": {
-   "1": "RF24_N",
+   "1": "RF24_A",
    "2": "GND"
   }
  },
  {
+  "ref": "L202",
+  "value": "8.2nH",
+  "footprint": "Inductor_SMD:L_0201_0603Metric",
+  "lcsc": "C206407",
+  "mpn": "LQP03TN8N2J02D",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/c9b9deb2-68c6-5839-bd42-980117bb382e",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF24_A",
+   "2": "RF24_B"
+  }
+ },
+ {
   "ref": "C202",
-  "value": "TBD",
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
-  "lcsc": "",
-  "mpn": "0402 C0G（值待定）",
+  "value": "0.3pF",
+  "footprint": "Capacitor_SMD:C_0201_0603Metric",
+  "lcsc": "C237456",
+  "mpn": "GJM0335C1ER30BB01D",
   "dnp": false,
   "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/99af51d6-fc65-57d4-9eda-dd669a2686fa",
   "sheet": "rf.kicad_sch",
   "sheetname": "射频",
   "pins": {
-   "1": "RF24_N",
+   "1": "RF24_B",
+   "2": "GND"
+  }
+ },
+ {
+  "ref": "C204",
+  "value": "20pF",
+  "footprint": "Capacitor_SMD:C_0201_0603Metric",
+  "lcsc": "C426116",
+  "mpn": "GJM0335C1E200GB01D",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/c8ed2faa-51a2-5d66-9dd0-fd06d4098e06",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF24_B",
    "2": "RF24_ANT"
+  }
+ },
+ {
+  "ref": "L203",
+  "value": "3.1nH",
+  "footprint": "Inductor_SMD:L_0201_0603Metric",
+  "lcsc": "C206428",
+  "mpn": "LQP03TN3N1B02D",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/b9c10fd3-b742-5020-9659-d81e331d616f",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF2G4_I0",
+   "2": "RF24_ANT"
+  }
+ },
+ {
+  "ref": "L204",
+  "value": "1.8nH",
+  "footprint": "Inductor_SMD:L_0201_0603Metric",
+  "lcsc": "C98040",
+  "mpn": "LQP03TN1N8B02D",
+  "dnp": false,
+  "path": "/bc4a9052-4317-5dc7-b019-55b53bf980cc/2c2fffbf-2783-569c-ad97-350237edea26",
+  "sheet": "rf.kicad_sch",
+  "sheetname": "射频",
+  "pins": {
+   "1": "RF2G4_I0",
+   "2": "GND"
   }
  },
  {
   "ref": "C203",
   "value": "DNP",
-  "footprint": "Capacitor_SMD:C_0402_1005Metric",
+  "footprint": "Capacitor_SMD:C_0201_0603Metric",
   "lcsc": "",
   "mpn": "",
   "dnp": true,

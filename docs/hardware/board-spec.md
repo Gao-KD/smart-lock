@@ -218,3 +218,4 @@ SPI 接 PC0–PC3，IRQ 到 PA4，NRSTPD 到 PC4，电源 3V3_NFC。天线线圈
 | --- | --- | --- |
 | rev A | 2026-11 | 首版定稿 |
 | rev A.1 | 2026-11 | 电池支路改为背靠背 P-MOS + USB 检测关断（防 USB 反灌电池）；433 MHz 匹配按 Direct-Tie +14 dBm 网络 |
+| rev A.2 | 2026-11 | 2.4 GHz 匹配按 AN1409 Figure 1.2 / Table 1.2（0201）；PAVDD 经 0Ω 二选一，默认接 DC-DC 1.8 V（DVDD），可改 3V3 |
